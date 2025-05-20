@@ -96,6 +96,11 @@
 \section{Parts List}
 \label{sec:Parts_List}
 
+Table \ref{tab:component_order} below displays the components 
+ordered to supplement the project so far.
+Their usages are discussed further in sections 
+\ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagrams}.
+
 \begin{table}[H]
     \centering
     \renewcommand{\arraystretch}{1.5}
@@ -110,7 +115,7 @@
         \hline
         SC21096 & Mini servo & 1 & 2.94 & 2.94 \\
         \hline
-        4030054 & Temp sensor & 1 & 1.38 & 1.38 \\
+        4030054 & Temperature sensor & 1 & 1.38 & 1.38 \\
         \hline
     \end{tabular}
     }   
@@ -121,6 +126,21 @@
 
 \section{Block Diagrams}
 \label{sec:Block_Diagrams}
+
+Figure \ref{fig:Block_Diagram_for_the_automatic_watering_system}
+shown below displays the general operation mode for the system.
+The sensor modules send real-time information to the Arduino,
+which processes and transmits the data to the PC via USB serial communication.
+
+This data is then stored by the PC and displayed graphically in MatLab(?), 
+with an interactive GUI through which the 
+theshold values, watering timings, or manual watering options
+can be controlled by user input.
+
+This is then fed back to the Arduino, 
+which will either do nothing if water levels are above the threshold,
+or dispense a controlled quantity of water by activating the servo
+if moisture levels have fallen below the threshold.
 
 \begin{figure}[H]
     \centering
