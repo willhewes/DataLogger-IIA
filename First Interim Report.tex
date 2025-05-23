@@ -136,12 +136,22 @@ Their usages are discussed further in sections
 \section{Analogue Circuit Design}
 \label{sec:Analogue_Circuit_Design}
 
+Figure \ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
+shows the analogue circuit design for the automatic watering system.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
     \caption{Analogue Circuit Diagram for the automatic watering system}
     \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
 \end{figure}
+
+The 5V wire acts as a supply rail, connecting to each of the components,
+and routing the ground through where necessary, and 
+the I/O pins map to their corresponding components.
+Capacitors are added in parallel with each of the sensors
+to reduce sensitivity to noise, allowing the data to be tracked
+more accurately and eliminating some of the noise.
 
 \section{Block Diagram}
 \label{sec:Block_Diagram}
