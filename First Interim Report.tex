@@ -96,8 +96,8 @@ plot the data over time, and provide options to water the plant
 at scheduled intervals or in response to threshold moisture levels.
 This allows for effective monitoring and care with minimal user intervention.
 
-In addition to moisture sensing, the system will 
-incorporate light and temperature sensors, 
+In addition to moisture sensing, the system could be expanded to 
+incorporate light and temperature sensors,
 enabling further environmental data to be plotted and analysed.
 These additional features enhance the system's utility
 for controlling the conditions affecting plant health.
@@ -108,7 +108,7 @@ for controlling the conditions affecting plant health.
 Table \ref{tab:component_order} below displays the components 
 ordered to supplement the project so far.
 Their usages are discussed further in sections 
-\ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagrams}.
+\ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagram}.
 
 \begin{table}[H]
     \centering
@@ -136,11 +136,18 @@ Their usages are discussed further in sections
 \section{Analogue Circuit Design}
 \label{sec:Analogue_Circuit_Design}
 
-\section{Block Diagrams}
-\label{sec:Block_Diagrams}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
+    \caption{Analogue Circuit Diagram for the automatic watering system}
+    \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+\section{Block Diagram}
+\label{sec:Block_Diagram}
 
 Figure \ref{fig:Block_Diagram_for_the_automatic_watering_system}
-shown below displays the general operation mode for the system.
+shown below displays the general mode of operation for the system.
 The sensor modules send real-time information to the Arduino,
 which processes and transmits the data to the PC via USB serial communication.
 
@@ -152,7 +159,8 @@ can be controlled by user input.
 This is then fed back to the Arduino, 
 which will either do nothing if water levels are above the threshold,
 or dispense a controlled quantity of water by activating the servo
-if moisture levels have fallen below the threshold.
+if moisture levels have fallen below the threshold
+(or manual watering is toggled).
 
 \begin{figure}[H]
     \centering
