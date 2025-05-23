@@ -9,7 +9,7 @@ PORT = 12345
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((HOST, PORT))
 server.listen(1)
-print("模拟Arduino：waiting for connection...")
+print("Arduino: waiting for connection...")
 conn, addr = server.accept()
 print("connected:", addr)
 

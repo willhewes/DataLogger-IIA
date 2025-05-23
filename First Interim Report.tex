@@ -29,20 +29,21 @@
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows}
 
-\lstdefinestyle{vhdl-style}{
-    language=VHDL,
+\lstdefinestyle{python-style}{
+    language=Python,
     basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\bfseries\color{blue},
-    commentstyle=\itshape\color{gray},
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray}\itshape,
     stringstyle=\color{red},
     numbers=left,
     numberstyle=\tiny\color{gray},
     stepnumber=1,
+    frame=single,
     breaklines=true,
-    showstringspaces=false,
-    frame=single
+    showstringspaces=false
 }
-\lstset{style=vhdl-style}
+
+\lstset{style=python-style}
 \lstset{captionpos=b}
 \lstset{basicstyle=\ttfamily\scriptsize} 
 \renewcommand{\lstlistingname}{Program}
@@ -186,6 +187,25 @@ if moisture levels have fallen below the threshold
 \label{sec:Conclusion}
 
 \appendix
-\section{Appendix}
+\section{Software Code}
+This software code is just a placeholder to simulate
+communication between the Arduino and the PC
+before the real system is functional.
+
+\subsection{Sender.py}
+
+\lstinputlisting[
+    style=python-style,
+    caption={Python script for sending data to the serial port},
+    label={Code:sender.py}
+]{C:/Users/willi/My Drive/Engineering/Obsidian Vault/Uni/IIA Projects/DataLogger-IIA/Python/sender.py}
+
+\subsection{Receiver.py}
+
+\lstinputlisting[
+    style=python-style,
+    caption={Python script for receiving data from the serial port},
+    label={Code:Receiver.py}
+]{C:/Users/willi/My Drive/Engineering/Obsidian Vault/Uni/IIA Projects/DataLogger-IIA/Python/sender.py}
 
 \end{document}

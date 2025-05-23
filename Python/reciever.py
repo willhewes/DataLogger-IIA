@@ -9,7 +9,7 @@ PORT = 12345
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect((HOST, PORT))
 
-# 创建 GUI 窗口
+# GUI
 root = tk.Tk()
 root.title("Environment Monitoring - Simulation")
 
