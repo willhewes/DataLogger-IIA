@@ -163,3 +163,5 @@ cython_debug/
 Build/ 
 # Similar idea - anything I don't want to upload yet (DNU = Do Not Upload)
 DNU/
+# .csv files, for data logging
+*.csv
