@@ -120,47 +120,16 @@ for controlling the conditions affecting plant health.
 \section{Parts List}
 \label{sec:Parts_List}
 
-Table \ref{tab:component_order} below displays the components 
+Table \ref{tab:component_order} in the Appnedix displays the components 
 ordered to supplement the project so far.
 Their usages are discussed further in sections 
 \ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagram}.
 
-\begin{table}[H]
-    \centering
-    % \renewcommand{\arraystretch}{1.5} 
-    % Save space (remove if not limiting)
-    \makebox[\linewidth][c]{
-    \resizebox{1.1\textwidth}{!}{
-    \begin{tabular}{|c|c|c|c|c|}
-        \hline
-        \textbf{Order Code} & \textbf{Description of Component} & 
-        \textbf{Qty} & \textbf{Unit Price (£)} & \textbf{Total Price (£)} \\
-        \hline
-        2946124 & Capacitive Soil Moisture Sensor Module & 1 & 4.69 & 4.69 \\
-        \hline
-        SC21096 & Mini servo & 1 & 2.94 & 2.94 \\
-        \hline
-        4030054 & Temperature sensor & 1 & 1.38 & 1.38 \\
-        \hline
-    \end{tabular}
-    }   
-    }
-    \caption{Component Order Summary}
-    \label{tab:component_order}
-\end{table}
-
 \section{Analogue Circuit Design}
 \label{sec:Analogue_Circuit_Design}
 
-Figure \ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
-shows the analogue circuit design for the automatic watering system.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
-    \caption{Analogue Circuit Diagram for the automatic watering system}
-    \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
-\end{figure}
+Figure \ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system} 
+in the Appendix shows the analogue circuit design for the automatic watering system.
 
 The 5V wire acts as a supply rail, connecting to each of the components and routing the ground through where necessary, while the I/O pins map to their corresponding components. 
 The 5V supply voltage lies within the operating range of all connected sensors, enabling direct connection to the Arduino without the need for additional filters or amplifiers, 
@@ -181,7 +150,7 @@ These enhancements would help ensure more reliable and responsive behaviour, par
 \label{sec:Block_Diagram}
 
 Figure \ref{fig:Block_Diagram_for_the_automatic_watering_system}
-shown below displays the general mode of operation for the system.
+shown in the Appendix displays the general mode of operation for the system.
 The sensor modules send real-time information to the Arduino,
 which processes and transmits the data to the PC via USB serial communication.
 
@@ -196,12 +165,6 @@ or dispense a controlled quantity of water by activating the servo
 if moisture levels have fallen below the threshold
 (or manual watering is toggled).
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{DataLogger Block Diagram2.png}
-    \caption{Block Diagram for the automatic watering system}
-    \label{fig:Block_Diagram_for_the_automatic_watering_system}
-\end{figure}
 \section{Firmware Description}
 
 The firmware was developed in Arduino C/C++ based on the current circuit design. It is responsible for real-time sampling of sensor data, including the TMP36 temperature sensor and the capacitive soil moisture sensor. To improve robustness and reduce the effect of noise, the firmware performs averaging across multiple samples (10 samples by default) for each sensor before converting the raw ADC values into meaningful physical quantities—Celsius for temperature and a raw moisture scale from the soil sensor.
@@ -244,6 +207,49 @@ and by enabling plotting, data storage capabilities, and an interactive GUI.
 
 \newpage
 \appendix
+\section{Parts List}
+
+\begin{table}[H]
+    \centering
+    % \renewcommand{\arraystretch}{1.5} 
+    % Save space (remove if not limiting)
+    \makebox[\linewidth][c]{
+    \resizebox{1.1\textwidth}{!}{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Order Code} & \textbf{Description of Component} & 
+        \textbf{Qty} & \textbf{Unit Price (£)} & \textbf{Total Price (£)} \\
+        \hline
+        2946124 & Capacitive Soil Moisture Sensor Module & 1 & 4.69 & 4.69 \\
+        \hline
+        SC21096 & Mini servo & 1 & 2.94 & 2.94 \\
+        \hline
+        4030054 & Temperature sensor & 1 & 1.38 & 1.38 \\
+        \hline
+    \end{tabular}
+    }   
+    }
+    \caption{Component Order Summary}
+    \label{tab:component_order}
+\end{table}
+
+\section{Analogue Circuit Design}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
+    \caption{Analogue Circuit Diagram for the automatic watering system}
+    \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+\section{Block Diagram}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{DataLogger Block Diagram2.png}
+    \caption{Block Diagram for the automatic watering system}
+    \label{fig:Block_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+
 \section{Firmware Code}
 \subsection{firmware.cpp}
 \lstinputlisting[
