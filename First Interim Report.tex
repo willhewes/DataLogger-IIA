@@ -28,7 +28,28 @@
 \usepackage{changepage}
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric, arrows}
+% --- C++ Style ---
+\lstdefinestyle{cpp-style}{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    stringstyle=\color{orange},
+    commentstyle=\color{gray}\itshape,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    numbersep=10pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    captionpos=b,
+    frame=single,
+    rulecolor=\color{black},
+}
 
+% --- Python Style ---
 \lstdefinestyle{python-style}{
     language=Python,
     basicstyle=\ttfamily\footnotesize,
@@ -37,15 +58,10 @@
     stringstyle=\color{green!50!black},
     frame=single,
     breaklines=true,
-    showstringspaces=false
+    showstringspaces=false,
+    captionpos=b
 }
-
-\lstset{style=python-style}
-\lstset{inputpath=Python}
-\lstset{captionpos=b}
-\lstset{basicstyle=\ttfamily\scriptsize} 
-\renewcommand{\lstlistingname}{Program}
-
+\renewcommand{\lstlistingname}{Code}
 % Custom settings
 \pagestyle{fancy}
 \fancyhf{}
@@ -148,12 +164,12 @@ shows the analogue circuit design for the automatic watering system.
 
 The 5V wire acts as a supply rail, connecting to each of the components and routing the ground through where necessary, while the I/O pins map to their corresponding components. 
 The 5V supply voltage lies within the operating range of all connected sensors, enabling direct connection to the Arduino without the need for additional filters or amplifiers, 
-as the sensor outputs fall within the Arduino’s ADC input range and provide sufficient signal strength and stability~\cite{arduino}.
+as the sensor outputs fall within the Arduino’s ADC input range and provide sufficient signal strength and stability~\cite{arduino_servo}.
 Capacitors are added in parallel with each of the sensors to reduce sensitivity to noise, allowing the data to be tracked more accurately and eliminating some of the interference.
 
-In designing the analogue circuit, we referred to the official documentation~\cite{dfrobot,arduino,tmp36} of each sensor and actuator, as well as guidelines provided on the Arduino platform. 
+In designing the analogue circuit, we referred to the official documentation~\cite{arduino_servo,tmp36,dfrobot} of each sensor and actuator, as well as guidelines provided on the Arduino platform. 
 For example, the TMP36 temperature sensor datasheet recommends placing a 0.1\,\textmu F ceramic bypass capacitor close to the supply pin to suppress high-frequency interference and prevent DC output shifts due to radio frequency noise~\cite{tmp36}. 
-Similarly, a 100\,\textmu F capacitor is added across the power supply to the servo motor, as recommended in Arduino documentation, to smooth out voltage fluctuations caused by sudden changes in current draw during operation~\cite{arduino}.
+Similarly, a 100\,\textmu F capacitor is added across the power supply to the servo motor, as recommended in Arduino documentation, to smooth out voltage fluctuations caused by sudden changes in current draw during operation~\cite{arduino_servo}.
 
 Once the sensors are received and tested, additional analogue circuitry may be introduced depending on their real-world performance. For instance, 
 if the soil moisture sensor exhibits limited precision or slow response time, measures such as adding a low-pass filter to stabilise fluctuating readings, 
@@ -186,6 +202,19 @@ if moisture levels have fallen below the threshold
     \caption{Block Diagram for the automatic watering system}
     \label{fig:Block_Diagram_for_the_automatic_watering_system}
 \end{figure}
+\section{Firmware Description}
+
+The firmware was developed in Arduino C/C++ based on the current circuit design. It is responsible for real-time sampling of sensor data, including the TMP36 temperature sensor and the capacitive soil moisture sensor. To improve robustness and reduce the effect of noise, the firmware performs averaging across multiple samples (10 samples by default) for each sensor before converting the raw ADC values into meaningful physical quantities—Celsius for temperature and a raw moisture scale from the soil sensor.
+
+After processing, the firmware sends the results to the computer via serial communication every second in a simple, human-readable format (e.g., \texttt{T=24.5,M=312}). In addition, the firmware listens for control commands from the computer to drive the servo motor, which actuates the watering mechanism. The servo angle can be controlled by commands such as \texttt{SERVO=90}.
+
+The firmware is initially based on and modified from example codes provided by the official documentation for each sensor and actuator:
+\begin{itemize}
+    \item TMP36 temperature sensor code was adapted from Analog Devices’ official documentation \cite{tmp36}.
+    \item Soil moisture sensor code is adapted from DFRobot’s official Arduino example \cite{dfrobot}.
+    \item Servo motor control follows the standard Arduino Servo library example \cite{arduino_servo}.
+\end{itemize}
+All logic and structure have been customized to meet the needs of this system while maintaining clarity and modularity for future expansion, such as adding digital filters or handling more sensors.
 
 \section{Software Design}
 \label{sec:Software_Design}
@@ -215,7 +244,15 @@ and by enabling plotting, data storage capabilities, and an interactive GUI.
 
 \newpage
 \appendix
+\section{Firmware Code}
+\subsection{firmware.cpp}
+\lstinputlisting[
+    style=cpp-style,
+    caption={Arduino code for sending data to the computer end},
+    label={Code:firmware.cpp}
+]{firmware.cpp}
 \section{Software Code}
+
 This software code is just a placeholder to simulate
 communication between the Arduino and the PC
 before the real system is functional.
@@ -226,7 +263,7 @@ before the real system is functional.
     style=python-style,
     caption={Python script for sending data to the serial port},
     label={Code:sender.py}
-]{sender.py}
+]{Python/sender.py}
 
 \subsection{Receiver.py}
 
@@ -234,15 +271,18 @@ before the real system is functional.
     style=python-style,
     caption={Python script for receiving sending data to the serial port},
     label={Code:receiver.py}
-]{receiver.py}
+]{Python/receiver.py}
 
 \begin{thebibliography}{9}
 
-\bibitem{arduino}
-Arduino Documentation. \textit{Analog Input}. Available at: \url{https://docs.arduino.cc/learn/microcontrollers/analog-input/}
+\bibitem{arduino_servo}
+Arduino Documentation. \textit{servo in Arduino}. Available at: \url{https://docs.arduino.cc/learn/electronics/servo-motors/}
 
 \bibitem{tmp36}
 Analog Devices. \textit{TMP35/TMP36/TMP37 Data Sheet}. Available at: \url{https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf}
+
+\bibitem{arduino_tmp36}
+Analog Devices. \textit{TMP36 with Arduino}. Available at: \url{https://arduinogetstarted.com/tutorials/arduino-tmp36-temperature-sensor}
 
 \bibitem{dfrobot}
 DFRobot. \textit{Capacitive Soil Moisture Sensor SKU:SEN0193}. Available at: \url{https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193}

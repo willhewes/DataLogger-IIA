@@ -35,9 +35,9 @@ void loop() {
 
   // send temperature and moisture to pc end
   Serial.print("T=");
-  Serial.print(tempC, 1);  // 保留一位小数
+  Serial.print(tempC, 1);  // save first digit
   Serial.print(",M=");
-  Serial.println((int)adcSoil);  // 湿度保留整数即可
+  Serial.println((int)adcSoil);  // save as integer
 
   // recieve excuting signal form computer
   if (Serial.available()) {
