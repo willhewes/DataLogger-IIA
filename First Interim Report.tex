@@ -12,7 +12,7 @@
 \usepackage{float} % For fixing figure and table positions
 \usepackage{booktabs} % For professional-looking tables
 \usepackage{siunitx} % For consistent typesetting of units and numbers
-\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry} % Adjusts page margins
+\usepackage[margin=2cm]{geometry} % Adjusts page margins
 \usepackage{fancyhdr} % For custom headers and footers
 \usepackage{lmodern} % For a professional-looking font (main body font)
 \usepackage{titlesec} % For title customization
@@ -63,7 +63,7 @@
 
 \graphicspath{{Images/}}
 
-\renewcommand{\arraystretch}{1.2}
+% \renewcommand{\arraystretch}{1.2}
 
 % Title formatting
 \renewcommand{\maketitle}{
@@ -111,7 +111,8 @@ Their usages are discussed further in sections
 
 \begin{table}[H]
     \centering
-    \renewcommand{\arraystretch}{1.5}
+    % \renewcommand{\arraystretch}{1.5} 
+    % Save space (remove if not limiting)
     \makebox[\linewidth][c]{
     \resizebox{1.1\textwidth}{!}{
     \begin{tabular}{|c|c|c|c|c|}
