@@ -146,12 +146,20 @@ shows the analogue circuit design for the automatic watering system.
     \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
 \end{figure}
 
-The 5V wire acts as a supply rail, connecting to each of the components,
-and routing the ground through where necessary, and 
-the I/O pins map to their corresponding components.
-Capacitors are added in parallel with each of the sensors
-to reduce sensitivity to noise, allowing the data to be tracked
-more accurately and eliminating some of the noise.
+The 5V wire acts as a supply rail, connecting to each of the components and routing the ground through where necessary, while the I/O pins map to their corresponding components. 
+The 5V supply voltage lies within the operating range of all connected sensors, enabling direct connection to the Arduino without the need for additional filters or amplifiers, 
+as the sensor outputs fall within the Arduino’s ADC input range and provide sufficient signal strength and stability~\cite{arduino}.
+Capacitors are added in parallel with each of the sensors to reduce sensitivity to noise, allowing the data to be tracked more accurately and eliminating some of the interference.
+
+In designing the analogue circuit, we referred to the official documentation~\cite{dfrobot,arduino,tmp36} of each sensor and actuator, as well as guidelines provided on the Arduino platform. 
+For example, the TMP36 temperature sensor datasheet recommends placing a 0.1\,\textmu F ceramic bypass capacitor close to the supply pin to suppress high-frequency interference and prevent DC output shifts due to radio frequency noise~\cite{tmp36}. 
+Similarly, a 100\,\textmu F capacitor is added across the power supply to the servo motor, as recommended in Arduino documentation, to smooth out voltage fluctuations caused by sudden changes in current draw during operation~\cite{arduino}.
+
+Once the sensors are received and tested, additional analogue circuitry may be introduced depending on their real-world performance. For instance, 
+if the soil moisture sensor exhibits limited precision or slow response time, measures such as adding a low-pass filter to stabilise fluctuating readings, 
+using an operational amplifier to improve signal resolution, or incorporating a comparator circuit to implement threshold-based triggering could be considered~\cite{dfrobot,yt}. 
+These enhancements would help ensure more reliable and responsive behaviour, particularly in applications requiring real-time monitoring or control.
+
 
 \section{Block Diagram}
 \label{sec:Block_Diagram}
@@ -227,5 +235,21 @@ before the real system is functional.
     caption={Python script for receiving sending data to the serial port},
     label={Code:receiver.py}
 ]{receiver.py}
+
+\begin{thebibliography}{9}
+
+\bibitem{arduino}
+Arduino Documentation. \textit{Analog Input}. Available at: \url{https://docs.arduino.cc/learn/microcontrollers/analog-input/}
+
+\bibitem{tmp36}
+Analog Devices. \textit{TMP35/TMP36/TMP37 Data Sheet}. Available at: \url{https://www.analog.com/media/en/technical-documentation/data-sheets/TMP35_36_37.pdf}
+
+\bibitem{dfrobot}
+DFRobot. \textit{Capacitive Soil Moisture Sensor SKU:SEN0193}. Available at: \url{https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193}
+
+\bibitem{yt}
+YouTube. \textit{Improving Capacitive Soil Moisture Sensor Readings}, Available at: \url{https://youtu.be/QGCrtXf8YSs}
+
+\end{thebibliography}
 
 \end{document}
