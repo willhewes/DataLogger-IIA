@@ -120,10 +120,11 @@ for controlling the conditions affecting plant health.
 \section{Parts List}
 \label{sec:Parts_List}
 
-Table \ref{tab:component_order} in the Appnedix displays the components 
-ordered to supplement the project so far.
-Their usages are discussed further in sections 
-\ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagram}.
+Table \ref{tab:component_order} in the Appendix displays the components 
+ordered to supplement the project so far. Their usages are discussed further in sections 
+\ref{sec:Analogue_Circuit_Design} and \ref{sec:Block_Diagram}. 
+
+The implementation of the water valve in this project is based on an open-source design available online \cite{pinch_valve_design}, which utilizes a servo-powered pinch valve mechanism.
 
 \section{Analogue Circuit Design}
 \label{sec:Analogue_Circuit_Design}
@@ -165,7 +166,7 @@ or dispense a controlled quantity of water by activating the servo
 if moisture levels have fallen below the threshold
 (or manual watering is toggled).
 
-\section{Firmware Description}
+\section{Firmware Design}
 
 The firmware was developed in Arduino C/C++ based on the current circuit design. It is responsible for real-time sampling of sensor data, including the TMP36 temperature sensor and the capacitive soil moisture sensor. To improve robustness and reduce the effect of noise, the firmware performs averaging across multiple samples (10 samples by default) for each sensor before converting the raw ADC values into meaningful physical quantities—Celsius for temperature and a raw moisture scale from the soil sensor.
 
@@ -295,6 +296,10 @@ DFRobot. \textit{Capacitive Soil Moisture Sensor SKU:SEN0193}. Available at: \ur
 
 \bibitem{yt}
 YouTube. \textit{Improving Capacitive Soil Moisture Sensor Readings}, Available at: \url{https://youtu.be/QGCrtXf8YSs}
+
+\bibitem{pinch_valve_design}
+Printables. \textit{Pinch Valve Powered by Servo}. Available at: \url{https://www.printables.com/model/247744-pinch-valve-powered-by-servo/files}
+
 
 \end{thebibliography}
 
