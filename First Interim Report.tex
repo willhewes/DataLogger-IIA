@@ -117,6 +117,9 @@ enabling further environmental data to be plotted and analysed.
 These additional features enhance the system's utility
 for controlling the conditions affecting plant health.
 
+Cheng will be taking the lead on the circuit design and firmware,
+and Will will be taking the lead on the software and hardware.
+
 \section{Parts List}
 \label{sec:Parts_List}
 
@@ -166,6 +169,9 @@ or dispense a controlled quantity of water by activating the servo
 if moisture levels have fallen below the threshold
 (or manual watering is toggled).
 
+The Arduino will also monitor temperature levels and can be expanded to 
+incorporate light sensors as well, allowing for increased datalogging capabilities.
+
 \section{Firmware Design}
 
 The firmware was developed in Arduino C/C++ based on the current circuit design. It is responsible for real-time sampling of sensor data, including the TMP36 temperature sensor and the capacitive soil moisture sensor. To improve robustness and reduce the effect of noise, the firmware performs averaging across multiple samples (10 samples by default) for each sensor before converting the raw ADC values into meaningful physical quantities—Celsius for temperature and a raw moisture scale from the soil sensor.
@@ -190,6 +196,9 @@ The final software implementation will feature
 Arduino communication to the PC via the serial,
 plotting capabilities and a GUI,
 and an Arduino controlled watering mechanism.
+
+The GUI will be implemented through the Tkinter module in Python,
+storing data in a .csv file 
 
 \section{Conclusion}
 \label{sec:Conclusion}
