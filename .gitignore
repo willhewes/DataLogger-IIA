@@ -165,3 +165,4 @@ Build/
 DNU/
 # .csv files, for data logging
 *.csv
+.vscode
