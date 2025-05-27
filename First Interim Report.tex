@@ -75,7 +75,7 @@
 \setlength{\belowdisplayskip}{1em}
 \setlength{\abovedisplayshortskip}{1em}
 \setlength{\belowdisplayshortskip}{1em}
-\setlist{topsep=0.4em, partopsep=0em, itemsep=0.2em, parsep=0em}
+\setlist{topsep=0.2em, partopsep=0em, itemsep=0.1em, parsep=0em}
 
 \graphicspath{{Images/}}
 
@@ -189,7 +189,6 @@ All logic and structure have been customized to meet the needs of this system wh
 \section{Software Design}
 \label{sec:Software_Design}
 
-
 So far, the software design is in its early stages,
 with a mock-up demonstration shown in the Appendix.
 The final software implementation will feature 
@@ -198,7 +197,7 @@ plotting capabilities and a GUI,
 and an Arduino controlled watering mechanism.
 
 The GUI will be implemented through the Tkinter module in Python,
-storing data in a .csv file 
+and data will be stored in a .csv file, allowing relevant data to be plotted.
 
 \section{Conclusion}
 \label{sec:Conclusion}
@@ -273,7 +272,7 @@ This software code is just a placeholder to simulate
 communication between the Arduino and the PC
 before the real system is functional.
 
-\subsection{Sender.py}
+\subsection{sender.py}
 
 \lstinputlisting[
     style=python-style,
@@ -281,7 +280,7 @@ before the real system is functional.
     label={Code:sender.py}
 ]{Python/sender.py}
 
-\subsection{Receiver.py}
+\subsection{receiver.py}
 
 \lstinputlisting[
     style=python-style,
