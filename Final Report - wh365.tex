@@ -105,39 +105,200 @@
 \section{Introduction}
 \label{sec:Introduction}
 
+The aim of this project was to develop a microcontroller-based 
+automatic plant watering system.
+The system can autonomously monitor soil moisture levels, 
+plot the data over time, and provide options to water the plant
+at scheduled intervals or in response to threshold moisture levels.
+This allows for effective monitoring and care with minimal user intervention.
+
+In addition to moisture sensing, the system also tracks
+temperature, humidity, and light.
+This means most of the key factors affecting plant health
+can be closely tracked, enabling detailed analysis of
+optimum conditions for plant health.
+These additional features enhance the system's utility
+for control and research.
+
+The motivation behind creating this autonomous watering system was twofold. 
+Firstly, it can be used as demonstrated on a small scale,
+allowing direct control over the health of one 
+or a small number of houseplants. 
+This will remove the mamjority of the care required
+to look after these often frail plants,
+which is particularly useful over holidays or 
+during the hot Summer months.
+As a universty student with several well-loved plants,
+this is very appealing to me personally
+and I will in all likelihood implement this 
+for my personal use once the project is finished.
+Secondly, it provides an easily expandable system
+which could be integrated into industrial applications.
+There have been attempts to spread similar technologies 
+throughout various industries, 
+including the agrcultural industry where crop health 
+and harvest timing are crucial. 
+Some of these applications are discussed further in
+Section \ref{sec:Further_Improvements}.
+
 \section{Summary}
 \label{sec:Summary}
 % Summary of overall design decisions and outline of project management (1 side, possible team material)
+- hosted on Github for collaboration \\
+- outline timescale and plans for milestones\\
+- building initial circuitry\\
+- block diagram\\
+- working submodules and testing equipment before integration\\
+- decision for Tkinter, GUI etc.\\
+- implementation of the socket demonstration before moving over to serial comms \\
+- what processing would be done on PC vs on Arduino (future expansion to wifi / bluetooth)\\
+- decisions behind including sensor types \\
+- contruction of water delivery mechanism\\
+- ordering parts through Farnell
+
+\begin{table}[H]
+    \centering
+    % \renewcommand{\arraystretch}{1.5} 
+    % Save space (remove if not limiting)
+    \makebox[\linewidth][c]{
+    \resizebox{1.1\textwidth}{!}{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Order Code} & \textbf{Description of Component} & 
+        \textbf{Qty} & \textbf{Unit Price (£)} & \textbf{Total Price (£)} \\
+        \hline
+        2946124 & Capacitive Soil Moisture Sensor Module & 1 & 4.69 & 4.69 \\
+        \hline
+        SC21096 & Mini servo & 1 & 2.94 & 2.94 \\
+        \hline
+        4030054 & Temperature sensor & 1 & 1.38 & 1.38 \\
+        \hline
+    \end{tabular}
+    }   
+    }
+    \caption{Component Order Summary}
+    \label{tab:component_order}
+\end{table}
+
+\section{System Architecture}
+\label{sec:System_Architecture}
+% Include anmalogue circuitry, block diagram, and decision to include capacitors, lack of resistors etc.
+% External power supply for servo
+
+- block diagram\\
+- description of general structure
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{DataLogger Block Diagram2.png}
+    \caption{Block Diagram for the automatic watering system}
+    \label{fig:Block_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+\subsection{Circuit Design}
+\label{Cicuit_Design}
+
+- diagram\\
+- testing sensors\\
+- servo on seperate rail\\ 
+- need for capacitors
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
+    \caption{Analogue Circuit Diagram for the automatic watering system}
+    \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+\subsection{Watering System}
+\label{sec:Watering_System}
+
+- decision to use pinch valve\\
+- necessity of reservoir sensor\\ 
+- demonstration of components individually and collectively
 
 \section{Code}
 \label{sec:Code}
 % Description of design/ computer code
-\subsection{Software}
-\label{sec:Software}
-
 \subsection{Firmware}
 \label{sec:Firmware}
+- sensors\\
+- parsing, processing\\
+- servo control
+
+\subsection{Software}
+\label{sec:Software}
+- comms with Arduino
+- GUI, plotting
+- initial demonstration
 
 \section{Technical Problemms}
 \label{sec:Technical_Problems}
 % Outline problems encountered in development and their technical solutions
+- get Chengs help in drafting some interesting ones \\
+- outline problem with powerrail if appropriate (not realising that these breadboards come with a gap in the powerrail)\\
+- floating point problem for temp sensor
 
 \section{Test Procedure}
 \label{sec:Test_Procedure}
 % Test procedure and software implementation
+- testing individual compomnents one at a time \\
+- testing the software presentation with a demonstration random data supply\\
+- calibrating the moisture sensor with dry and with water\\
+- determining the required servo rotation to elicit small quanmtiy of water\\
+- use data from other sources to determine if humidity, light, and temp calibrated properly
 
 \section{Further Improvements}
 \label{sec:Further_Improvements}
+- wifi module \\
+- less jerryrigged water supply\\
+- more sensors (CO2 conc)\\
+- reservoir sensor\\
+- greater control over parameters (mass of plant, type of plant)\\
+- greater signal processing\\
+- wider industrial applications
+
+\subsection{Wider Industry}
+\label{sec:Wider_Industry}
+% Mention the watering systems currently being developed and the research undertaken
+- deeper research into exact requirements\\
+- close collaboration with farmers to set these requirements\\
+- integrate a warning system to say that the specific conditions have been met (humidity requirements for harvesting etc, perhaps dangerous levels of heat)\\
+- further integration of sensors, such as soil content (salt conc, fertiliser etc.)
 
 \section{Conclusion}
 \label{sec:Conclusion}
 
-\begin{thebibliography}{9}
+The aim of this project was to create a working demonstration of 
+our autonomous watering system, with the ability to both log data
+and dispense controlled quantities of water 
+as the consumer dictates.
+Overall, this has been a resounding success, 
+acheiving the inital goal of moisture sensing and servo activation,
+and expanding on this to include other senors 
+and a more developed GUI.
 
-\end{thebibliography}
+The primary challenges and takeaways for a similar project in the future
+include ...
+Throughout this report it is evident that responsible practises 
+such as detailed planning, modular testing,
+and a feasible but expandable scope are integral to 
+ensuring the success of a project like this.
+
+This work could be expanded in the future to make a 
+more sophisticated and professional datalogger
+of the same scale,
+incorporating more sensors, a more ... housing and 
+general setup,
+or could be further modified to be used in larger
+industrial applications, such as informing agricultural farming
+as is being researched by ...
 
 \newpage
 \appendix
+\begin{thebibliography}{9}
+
+\end{thebibliography}
 \section{Interim Report}
 \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
 % Featuring the Interim Report
