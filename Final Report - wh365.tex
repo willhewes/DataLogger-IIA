@@ -96,11 +96,13 @@
 }
 
 \begin{document}
+\pagenumbering{gobble}
 \includepdf[pages=-]{Handouts/IIA_Project_Coversheet Final Report.pdf}
 \maketitle
 \hrule
 \tableofcontents
 \newpage
+\pagenumbering{arabic} \setcounter{page}{1}
 
 \section{Introduction}
 \label{sec:Introduction}
@@ -302,7 +304,32 @@ as is being researched by ...
 \appendix
 \begin{thebibliography}{9}
 
+\bibitem{arduino_servo}
+Arduino. \textit{Servo Motor Basics with Arduino} : \\
+\url{https://docs.arduino.cc/learn/electronics/servo-motors/}
+
+\bibitem{tmp36}
+Analog Devices. \textit{TMP35/TMP36/TMP37 Data Sheet} : \\
+\url{https://www.analog.com/en/products/tmp36.html} 
+
+\bibitem{arduino_tmp36}
+ArduinoGetStarted. \textit{Arduino - TMP36 Temperature Sensor} : \\
+\url{https://arduinogetstarted.com/tutorials/arduino-tmp36-temperature-sensor}
+
+\bibitem{dfrobot}
+DFRobot. \textit{Capacitive Soil Moisture Sensor SKU SEN0193} : \\
+\url{https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193}
+
+\bibitem{yt}
+YouTube. \textit{Improving Capacitive Soil Moisture Sensor Readings} : \\
+\url{https://youtu.be/QGCrtXf8YSs}
+
+\bibitem{pinch_valve_design}
+Printables. \textit{Pinch Valve Powered by Servo} : \\
+\url{https://www.printables.com/model/247744-pinch-valve-powered-by-servo/files}
+
 \end{thebibliography}
+
 \section{Interim Report}
 \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
 % Featuring the Interim Report
