@@ -158,20 +158,24 @@ Section \ref{sec:Further_Improvements}.
 
 \begin{table}[H]
     \centering
-    % \renewcommand{\arraystretch}{1.5} 
-    % Save space (remove if not limiting)
+    \renewcommand{\arraystretch}{1.5} 
     \makebox[\linewidth][c]{
-    \resizebox{1.1\textwidth}{!}{
-    \begin{tabular}{|c|c|c|c|c|}
+    \resizebox{0.8\textwidth}{!}{
+    \begin{tabular}{|c|c|c|}
         \hline
-        \textbf{Order Code} & \textbf{Description of Component} & 
-        \textbf{Qty} & \textbf{Unit Price (£)} & \textbf{Total Price (£)} \\
+        \textbf{Order Code} & \textbf{Description of Component} & \textbf{Unit Price (£)} \\
         \hline
-        2946124 & Capacitive Soil Moisture Sensor Module & 1 & 4.69 & 4.69 \\
+        2946124 & Capacitive Soil Moisture Sensor Module & 4.69 \\
         \hline
-        SC21096 & Mini servo & 1 & 2.94 & 2.94 \\
+        SC21096 & Mini servo & 2.94 \\
         \hline
-        4030054 & Temperature sensor & 1 & 1.38 & 1.38 \\
+        4030054 & Temperature sensor & 1.38 \\
+        \hline
+        3167525 & Light sensor & 1.43 \\
+        \hline
+        SN36746 & Humidity sensor & 0.91 \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{\large Total}} & \textbf{\large 11.35} \\
         \hline
     \end{tabular}
     }   
@@ -228,8 +232,8 @@ Section \ref{sec:Further_Improvements}.
 
 \subsection{Software}
 \label{sec:Software}
-- comms with Arduino
-- GUI, plotting
+- comms with Arduino\\
+- GUI, plotting\\
 - initial demonstration
 
 \section{Technical Problemms}
