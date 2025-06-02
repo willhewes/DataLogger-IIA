@@ -28,12 +28,10 @@ void loop()
     float tempF = tempC * 9 / 5 + 32;
 
     // print the temperature in the Serial Monitor:
-    Serial.print("TMP36 Temperature: ");
-    Serial.print(tempC); // print the temperature in Celsius
-    Serial.print("°C");
-    Serial.print("  ~  "); // separator between Celsius and Fahrenheit
-    Serial.print(tempF);   // print the temperature in Fahrenheit
-    Serial.println("°F");
+    Serial.print("T:");
+    Serial.print(tempC);
+    Serial.print("M:");
+    Serial.print(tempC);
 
     delay(1000);
 }
