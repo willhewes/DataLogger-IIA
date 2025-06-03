@@ -153,7 +153,7 @@ class SerialPlotter(QtWidgets.QWidget):
             if not hasattr(self, 'temp_batch'):
                 self.temp_batch = []
                 self.moist_batch = []
-                self.batch_size = 5
+                self.batch_size = 10
 
             self.temp_batch.append(temp)
             self.moist_batch.append(moist)
