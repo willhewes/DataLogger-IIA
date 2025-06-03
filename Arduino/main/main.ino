@@ -56,7 +56,7 @@ void handleSerialInput()
 // === Read and send sensor data ===
 void sendSensorData()
 {
-    int rawMoisture = analogRead(PIN_MOIST);
+    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
     float rawTemp = tmp_conv(analogRead(PIN_TMP36));
 
     // Store new readings in circular buffers
