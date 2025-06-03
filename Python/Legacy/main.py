@@ -12,7 +12,7 @@ if __name__ == "__main__":
             processes.append(subprocess.Popen(["python", "Python/receiver.py"]))
         elif logging == "2":
             processes.append(subprocess.Popen(["python", "Python/sender.py"]))
-            processes.append(subprocess.Popen(["python", "Python/serial_comms.py"]))
+            processes.append(subprocess.Popen(["python", "Python/plot.py"]))
         else:
             print("No valid option selected.")
             sys.exit(0)
