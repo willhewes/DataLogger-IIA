@@ -5,11 +5,21 @@ import time
 import numpy as np
 from datetime import datetime
 from collections import deque
-from PyQt5 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 class SerialPlotter(QtWidgets.QWidget):
+    def set_thresholds(self):
+    # Future use: fetch and validate thresholds
+        try:
+            min_val = float(self.moisture_min_input.text())
+            max_val = float(self.moisture_max_input.text())
+            print(f"Thresholds set: Min={min_val}, Max={max_val}")
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self, "Input Error", "Please enter valid numeric thresholds.")
+
     def __init__(self, port='COM11', baud=9600, max_points=100, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Real-Time Sensor Plotter")
@@ -58,6 +68,25 @@ class SerialPlotter(QtWidgets.QWidget):
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.canvas)
+                # === Input Panel for Thresholds ===
+        input_layout = QHBoxLayout()
+        self.moisture_min_input = QLineEdit()
+        self.moisture_max_input = QLineEdit()
+        apply_button = QPushButton("Set Thresholds")
+
+        self.moisture_min_input.setPlaceholderText("Moisture Min")
+        self.moisture_max_input.setPlaceholderText("Moisture Max")
+
+        input_layout.addWidget(QLabel("Thresholds:"))
+        input_layout.addWidget(self.moisture_min_input)
+        input_layout.addWidget(self.moisture_max_input)
+        input_layout.addWidget(apply_button)
+
+        # Dummy connection (future usage)
+        apply_button.clicked.connect(self.set_thresholds)
+
+        layout.addLayout(input_layout)
+
         self.setLayout(layout)
 
         # Timer for live update
@@ -118,4 +147,4 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = SerialPlotter()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
