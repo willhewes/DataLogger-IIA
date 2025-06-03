@@ -10,13 +10,6 @@
 Servo myServo;
 int servoPosition = 90; // Default servo angle
 
-// === Averaging Buffers ===
-const int NUM_SAMPLES = 5;
-float tempSamples[NUM_SAMPLES] = {0};
-int moistureSamples[NUM_SAMPLES] = {0};
-int sampleIndex = 0;
-bool filled = false;
-
 void setup()
 {
     Serial.begin(9600);
@@ -30,7 +23,7 @@ void loop()
 {
     handleSerialInput(); // Respond to PC commands
     sendSensorData();    // Output averaged sensor data
-    delay(20);          // Adjust as needed
+    delay(50);          // Adjust as needed
 }
 
 // === Handle incoming serial commands (e.g., servo control) ===
@@ -59,27 +52,11 @@ void sendSensorData()
     int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
     float rawTemp = tmp_conv(analogRead(PIN_TMP36));
 
-    // Store new readings in circular buffers
-    moistureSamples[sampleIndex] = rawMoisture;
-    tempSamples[sampleIndex] = rawTemp;
-
-    sampleIndex++;
-    if (sampleIndex >= NUM_SAMPLES)
-    {
-        sampleIndex = 0;
-        filled = true;
-    }
-
-    // Calculate averages
-    int avgMoisture = averageMoisture();
-    float avgTemp = averageTemp();
-
     // Serial output
-    Serial.print("MOIST:");
-    Serial.println(avgMoisture);
+    Serial.print(rawMoisture);
 
-    Serial.print("TEMP:");
-    Serial.println(avgTemp, 2); // Print with 2 decimal places
+    Serial.print(",");
+    Serial.println(rawTemp, 2); // Print with 2 decimal places
 }
 
 // === Convert TMP36 analog reading to temperature in °C ===
@@ -88,28 +65,4 @@ float tmp_conv(int adcVal)
     float voltage = adcVal * (ADC_VREF / ADC_RESOLUTION);
     float tempC = (voltage - 0.5) * 100.0;
     return tempC;
-}
-
-// === Compute average temperature ===
-float averageTemp()
-{
-    float sum = 0;
-    int count = filled ? NUM_SAMPLES : sampleIndex;
-    for (int i = 0; i < count; i++)
-    {
-        sum += tempSamples[i];
-    }
-    return (count > 0) ? sum / count : 0;
-}
-
-// === Compute average moisture ===
-int averageMoisture()
-{
-    int sum = 0;
-    int count = filled ? NUM_SAMPLES : sampleIndex;
-    for (int i = 0; i < count; i++)
-    {
-        sum += moistureSamples[i];
-    }
-    return (count > 0) ? sum / count : 0;
 }
