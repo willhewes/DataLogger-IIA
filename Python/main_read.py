@@ -1,38 +1,50 @@
 import serial
 import time
+import csv
+from datetime import datetime
 import matplotlib.pyplot as plt
 from collections import deque
 
 # === Configuration ===
-PORT = 'COM11'          # Replace with your Arduino's port
+PORT = 'COM11'          # Change as needed
 BAUD = 9600
-MAX_POINTS = 100       # Number of points to show in the plot
+MAX_POINTS = 100
 
-# === Initialise Serial Connection ===
+# === Serial Setup ===
 ser = serial.Serial(PORT, BAUD)
-time.sleep(2)  # Give time for Arduino to reset
+time.sleep(2)
 
-# === Rolling Buffers for Plotting ===
+# === CSV Setup ===
+csv_file = open("sensor_log.csv", mode='w', newline='')
+csv_writer = csv.writer(csv_file)
+csv_writer.writerow(["timestamp", "moisture", "temp_C"])
+
+# === Buffers ===
 moisture_vals = deque([0]*MAX_POINTS, maxlen=MAX_POINTS)
 temp_vals = deque([0]*MAX_POINTS, maxlen=MAX_POINTS)
 timestamps = deque(range(-MAX_POINTS, 0), maxlen=MAX_POINTS)
 
-# === Setup Plot ===
+# === Plot Setup ===
 plt.ion()
 fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()
+
 line1, = ax1.plot([], [], label='Moisture', color='tab:blue')
-line2, = ax1.plot([], [], label='Temp (°C)', color='tab:red')
-ax1.set_ylim(0, 1024)
-ax1.set_title("Real-Time Sensor Readings")
+line2, = ax2.plot([], [], label='Temp (°C)', color='tab:red')
+
+ax1.set_ylabel("Moisture (ADC)", color='tab:blue')
+ax2.set_ylabel("Temperature (°C)", color='tab:red')
 ax1.set_xlabel("Samples")
-ax1.set_ylabel("ADC / Temp")
-ax1.legend()
+fig.suptitle("Real-Time Sensor Readings")
+fig.legend(loc="upper left")
 ax1.grid()
 
-# === Update Plot Loop ===
+# === Live Loop ===
 while True:
     try:
         line = ser.readline().decode('utf-8').strip()
+        now = datetime.now().isoformat(timespec='seconds')
+
         if line.startswith("MOIST:"):
             moisture = int(line.split(":")[1])
             moisture_vals.append(moisture)
@@ -42,19 +54,26 @@ while True:
             temp_vals.append(temp)
             timestamps.append(timestamps[-1] + 1)
 
+            # Save to CSV
+            csv_writer.writerow([now, moisture_vals[-1], temp])
+            csv_file.flush()
+
             # Update plot
             line1.set_data(timestamps, moisture_vals)
             line2.set_data(timestamps, temp_vals)
+
             ax1.set_xlim(timestamps[0], timestamps[-1])
-            ax1.set_ylim(min(min(moisture_vals), min(temp_vals)) - 10,
-                         max(max(moisture_vals), max(temp_vals)) + 10)
+            ax1.set_ylim(min(moisture_vals) - 10, max(moisture_vals) + 10)
+            ax2.set_ylim(min(temp_vals) - 2, max(temp_vals) + 2)
+
             plt.pause(0.01)
 
     except KeyboardInterrupt:
-        print("Stopped by user.")
+        print("Interrupted.")
         break
     except Exception as e:
         print(f"Error: {e}")
         continue
 
 ser.close()
+csv_file.close()
