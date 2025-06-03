@@ -29,9 +29,8 @@ void loop()
 
     // print the temperature in the Serial Monitor:
     Serial.print("T:");
-    Serial.print(tempC);
-    Serial.print("M:");
-    Serial.print(tempC);
+    Serial.println(tempC);
+
 
     delay(1000);
 }
