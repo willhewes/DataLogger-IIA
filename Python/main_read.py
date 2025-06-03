@@ -44,7 +44,7 @@ class SerialPlotter(QtWidgets.QWidget):
         # Setup Serial
         try:
             self.ser = serial.Serial(self.port, self.baud)
-            time.sleep(2)
+            time.sleep(3)
         except serial.SerialException:
             QtWidgets.QMessageBox.critical(self, "Serial Error", f"Unable to open {self.port}")
             sys.exit(1)
@@ -141,53 +141,55 @@ class SerialPlotter(QtWidgets.QWidget):
             line = self.ser.readline().decode('utf-8').strip()
             now = datetime.now().isoformat(timespec='seconds')
 
+            # Example expected line: "512,23.45"
+            parts = line.split(",")
+            if len(parts) != 2:
+                return  # Skip malformed line
+
+            moist = int(parts[0])
+            temp = float(parts[1])
+
             # === Raw data accumulation ===
             if not hasattr(self, 'temp_batch'):
                 self.temp_batch = []
                 self.moist_batch = []
                 self.batch_size = 5
 
-            if line.startswith("MOIST:"):
-                self.last_moisture = int(line.split(":")[1])
+            self.temp_batch.append(temp)
+            self.moist_batch.append(moist)
 
-            elif line.startswith("TEMP:"):
-                temp = float(line.split(":")[1])
-                moist = getattr(self, 'last_moisture', 0)
+            if len(self.temp_batch) >= self.batch_size:
+                # Compute averages
+                avg_temp = sum(self.temp_batch) / self.batch_size
+                avg_moist = int(sum(self.moist_batch) / self.batch_size)
 
-                self.temp_batch.append(temp)
-                self.moist_batch.append(moist)
+                self.temp_vals.append(avg_temp)
+                self.moisture_vals.append(avg_moist)
+                self.timestamps.append(self.sample_count)
+                self.sample_count += 1
 
-                if len(self.temp_batch) >= self.batch_size:
-                    # Compute averages
-                    avg_temp = sum(self.temp_batch) / self.batch_size
-                    avg_moist = int(sum(self.moist_batch) / self.batch_size)
+                # Save to CSV
+                self.csv_writer.writerow([now, avg_moist, avg_temp])
+                self.csv_file.flush()
 
-                    self.temp_vals.append(avg_temp)
-                    self.moisture_vals.append(avg_moist)
-                    self.timestamps.append(self.sample_count)
-                    self.sample_count += 1
+                # Update plot
+                self.line1.set_data(self.timestamps, self.moisture_vals)
+                self.line2.set_data(self.timestamps, self.temp_vals)
 
-                    # Save to CSV
-                    self.csv_writer.writerow([now, avg_moist, avg_temp])
-                    self.csv_file.flush()
+                self.ax1.set_xlim(max(0, self.sample_count - self.max_points), self.sample_count)
+                self.ax1.set_ylim(min(self.moisture_vals) - 10, max(self.moisture_vals) + 10)
+                self.ax2.set_ylim(min(self.temp_vals) - 2, max(self.temp_vals) + 2)
 
-                    # Update plot
-                    self.line1.set_data(self.timestamps, self.moisture_vals)
-                    self.line2.set_data(self.timestamps, self.temp_vals)
+                self.canvas.draw()
 
-                    self.ax1.set_xlim(max(0, self.sample_count - self.max_points), self.sample_count)
-                    self.ax1.set_ylim(min(self.moisture_vals) - 10, max(self.moisture_vals) + 10)
-                    self.ax2.set_ylim(min(self.temp_vals) - 2, max(self.temp_vals) + 2)
+                # Update live reading labels
+                self.moisture_label.setText(f"Moisture: {avg_moist:.1f}")
+                self.temp_label.setText(f"Temperature: {avg_temp:.1f} °C")
 
-                    self.canvas.draw()
+                # Clear batch
+                self.temp_batch.clear()
+                self.moist_batch.clear()
 
-                    # Update live reading labels
-                    self.moisture_label.setText(f"Moisture: {avg_moist:.1f}")
-                    self.temp_label.setText(f"Temperature: {avg_temp:.1f} °C")
-
-                    # Clear batch
-                    self.temp_batch.clear()
-                    self.moist_batch.clear()
         except Exception as e:
             print(f"[Error] {e}")
 
