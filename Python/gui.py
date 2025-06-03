@@ -34,6 +34,7 @@ class SerialPlotter(QtWidgets.QWidget):
         self.moisture_vals = deque(maxlen=max_points)
         self.temp_vals = deque(maxlen=max_points)
         self.timestamps = deque(maxlen=max_points)
+
         self.temp_batch = []
         self.moist_batch = []
 
@@ -75,7 +76,11 @@ class SerialPlotter(QtWidgets.QWidget):
         plot_layout.addWidget(self.canvas)
         side_panel = QVBoxLayout()
 
-        # Threshold input
+        # Add live clock
+        self.clock_label = QLabel("Time: --:--:--")
+        self.clock_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        side_panel.addWidget(self.clock_label)
+
         self.moisture_min_input = QLineEdit()
         self.moisture_max_input = QLineEdit()
         apply_button = QPushButton("Set Thresholds")
@@ -143,6 +148,15 @@ class SerialPlotter(QtWidgets.QWidget):
         self.timer.timeout.connect(self.update_data)
         self.timer.start(20)
 
+        # Clock update timer (once per second)
+        self.clock_timer = QtCore.QTimer()
+        self.clock_timer.timeout.connect(self.update_clock)
+        self.clock_timer.start(1000)
+
+    def update_clock(self):
+        current_time = datetime.now().strftime("%H:%M:%S")
+        self.clock_label.setText(f"Time: {current_time}")
+
     def set_thresholds(self):
         try:
             min_val = float(self.moisture_min_input.text())
@@ -197,6 +211,7 @@ class SerialPlotter(QtWidgets.QWidget):
             if avg_temp is not None:
                 self.temp_vals.append(avg_temp)
                 self.moisture_vals.append(avg_moist)
+
                 elapsed = (datetime.now() - self.start_time).total_seconds()
                 self.timestamps.append(elapsed)
 
