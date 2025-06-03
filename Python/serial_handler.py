@@ -16,20 +16,20 @@ class SerialHandler:
             raise RuntimeError(f"Failed to connect to {self.port}: {e}")
 
     def read_line(self):
-        """Read a line from the serial port and decode it to string."""
+        # Read a line from the serial port and decode it to string
         if self.ser and self.ser.in_waiting:
             return self.ser.readline().decode('utf-8').strip()
         return
 
     def send_command(self, command):
-        """Send a string command to the serial device."""
+        # Send a string command to the serial device
         if self.ser:
             full_cmd = command.strip() + "\n"
             self.ser.write(full_cmd.encode('utf-8'))
             print(f"[TX] {full_cmd.strip()}")
 
     def close(self):
-        """Safely close the serial port."""
+        # Safely close the serial port
         if self.ser and self.ser.is_open:
             self.ser.close()
             print(f"[INFO] Closed serial connection on {self.port}")

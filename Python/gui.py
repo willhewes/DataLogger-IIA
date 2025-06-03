@@ -69,7 +69,7 @@ class SerialPlotter(QtWidgets.QWidget):
         self.line1, = self.ax1.plot([], [], label='Moisture', color='tab:blue')
         self.line2, = self.ax2.plot([], [], label='Temp (°C)', color='tab:red')
 
-        self.ax1.set_ylabel("Moisture (ADC)", color='tab:blue')
+        self.ax1.set_ylabel("Moisture", color='tab:blue')
         self.ax2.set_ylabel("Temperature (°C)", color='tab:red')
         self.ax1.set_xlabel("Time (s)")
         self.ax1.grid()

@@ -12,10 +12,17 @@ light_theme = """
         left: 7px;
         padding: 0 5px 0 5px;
     }
-    QLineEdit, QPushButton {
+    QLineEdit {
         padding: 4px;
         border: 1px solid #888;
         background-color: #fff;
+        color: #000;
+    }
+    QPushButton {
+        padding: 4px;
+        border: 1px solid #888;
+        background-color: #007acc;
+        color: #fff;
     }
 """
 
@@ -33,11 +40,17 @@ dark_theme = """
         left: 7px;
         padding: 0 5px 0 5px;
     }
-    QLineEdit, QPushButton {
+    QLineEdit {
         padding: 4px;
         border: 1px solid #444;
         background-color: #3a3a3a;
         color: #eee;
+    }
+    QPushButton {
+        padding: 4px;
+        border: 1px solid #444;
+        background-color: #007acc;
+        color: #fff;
     }
 """
 

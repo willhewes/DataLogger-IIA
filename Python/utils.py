@@ -27,7 +27,7 @@ def get_iso_timestamp():
     return datetime.now().isoformat(timespec='seconds')
 
 def get_current_time_string():
-    """Returns the current time as a HH:MM:SS formatted string for clock display."""
+    # Returns the current time as a HH:MM:SS formatted string for clock display
     return datetime.now().strftime("%H:%M:%S")
 
 def clamp_servo_angle(angle):
@@ -37,12 +37,12 @@ def clamp_servo_angle(angle):
     return angle
 
 def validate_range(min_val, max_val, label="value"):
-    """Raises a ValueError if max_val is less than min_val."""
+    # Raises a ValueError if max_val is less than min_val
     if max_val < min_val:
         raise ValueError(f"Max {label} must be greater than or equal to min {label}.")
 
 def generate_filename(prefix="sensor_log", ext="csv"):
-    """Generates a timestamped filename."""
+    # Generates a timestamped filename
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     return f"{prefix}_{timestamp}.{ext}"
 
