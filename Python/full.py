@@ -1,5 +1,6 @@
 import sys
 import serial
+import os
 import csv
 import time
 import numpy as np
@@ -223,12 +224,17 @@ class SerialPlotter(QtWidgets.QWidget):
             print(f"[Error] {e}")
 
     def closeEvent(self, event):
-        self.ser.close()
-        self.csv_file.close()
+        try:
+            self.ser.close()
+            self.csv_file.close()
+            os.remove(self.csv_file.name)
+            print(f"[INFO] Deleted temporary log file: {self.csv_file.name}")
+        except Exception as e:
+            print(f"[WARNING] Failed to delete CSV: {e}")
         event.accept()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    window = SerialPlotter()
+    window = SerialPlotter(port='COM6')
     window.show()
     sys.exit(app.exec())
