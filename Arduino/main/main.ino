@@ -30,7 +30,7 @@ void loop()
 {
     handleSerialInput(); // Respond to PC commands
     sendSensorData();    // Output averaged sensor data
-    delay(500);          // Adjust as needed
+    delay(20);          // Adjust as needed
 }
 
 // === Handle incoming serial commands (e.g., servo control) ===

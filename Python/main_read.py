@@ -6,13 +6,12 @@ import numpy as np
 from datetime import datetime
 from collections import deque
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QPushButton, QGroupBox, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 class SerialPlotter(QtWidgets.QWidget):
     def set_thresholds(self):
-    # Future use: fetch and validate thresholds
         try:
             min_val = float(self.moisture_min_input.text())
             max_val = float(self.moisture_max_input.text())
@@ -20,7 +19,7 @@ class SerialPlotter(QtWidgets.QWidget):
         except ValueError:
             QtWidgets.QMessageBox.warning(self, "Input Error", "Please enter valid numeric thresholds.")
 
-    def __init__(self, port='COM11', baud=9600, max_points=100, parent=None):
+    def __init__(self, port='COM11', baud=9600, max_points=20, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Real-Time Sensor Plotter")
         self.resize(1000, 600)
@@ -66,33 +65,67 @@ class SerialPlotter(QtWidgets.QWidget):
         self.fig.suptitle("Real-Time Sensor Readings")
         self.fig.legend(loc="upper left")
 
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.canvas)
-                # === Input Panel for Thresholds ===
-        input_layout = QHBoxLayout()
+        # === Main Layout ===
+        main_layout = QtWidgets.QHBoxLayout()
+        plot_layout = QVBoxLayout()
+        plot_layout.addWidget(self.canvas)
+
+        # === Side Panel ===
+        side_panel = QVBoxLayout()
+
+        # Threshold Settings
+        threshold_group = QGroupBox("Threshold Settings")
+        threshold_layout = QVBoxLayout()
         self.moisture_min_input = QLineEdit()
         self.moisture_max_input = QLineEdit()
-        apply_button = QPushButton("Set Thresholds")
-
         self.moisture_min_input.setPlaceholderText("Moisture Min")
         self.moisture_max_input.setPlaceholderText("Moisture Max")
-
-        input_layout.addWidget(QLabel("Thresholds:"))
-        input_layout.addWidget(self.moisture_min_input)
-        input_layout.addWidget(self.moisture_max_input)
-        input_layout.addWidget(apply_button)
-
-        # Dummy connection (future usage)
+        apply_button = QPushButton("Set Thresholds")
         apply_button.clicked.connect(self.set_thresholds)
+        threshold_layout.addWidget(QLabel("Enter Thresholds:"))
+        threshold_layout.addWidget(self.moisture_min_input)
+        threshold_layout.addWidget(self.moisture_max_input)
+        threshold_layout.addWidget(apply_button)
+        threshold_group.setLayout(threshold_layout)
 
-        layout.addLayout(input_layout)
+        # Warning Levels
+        warning_group = QGroupBox("Warning Levels")
+        warning_layout = QVBoxLayout()
+        self.warning_min_input = QLineEdit()
+        self.warning_max_input = QLineEdit()
+        self.warning_min_input.setPlaceholderText("Warning Min")
+        self.warning_max_input.setPlaceholderText("Warning Max")
+        warning_button = QPushButton("Set Warnings")
+        warning_button.clicked.connect(lambda: print("Warning levels set (not functional yet)"))
+        warning_layout.addWidget(QLabel("Enter Warning Levels:"))
+        warning_layout.addWidget(self.warning_min_input)
+        warning_layout.addWidget(self.warning_max_input)
+        warning_layout.addWidget(warning_button)
+        warning_group.setLayout(warning_layout)
 
-        self.setLayout(layout)
+        # Current Readings
+        readout_group = QGroupBox("Current Readings")
+        readout_layout = QVBoxLayout()
+        self.moisture_label = QLabel("Moisture: ---")
+        self.temp_label = QLabel("Temperature: ---")
+        readout_layout.addWidget(self.moisture_label)
+        readout_layout.addWidget(self.temp_label)
+        readout_group.setLayout(readout_layout)
+
+        # Assemble side panel
+        side_panel.addWidget(threshold_group)
+        side_panel.addWidget(warning_group)
+        side_panel.addWidget(readout_group)
+        side_panel.addStretch()
+
+        main_layout.addLayout(plot_layout, stretch=3)
+        main_layout.addLayout(side_panel, stretch=1)
+        self.setLayout(main_layout)
 
         # Timer for live update
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.update_data)
-        self.timer.start(50)
+        self.timer.start(20)
 
     def fft_filter(self, signal, keep_fraction=0.1):
         if len(signal) < 8:
@@ -127,7 +160,7 @@ class SerialPlotter(QtWidgets.QWidget):
                 if len(self.temp_batch) >= self.batch_size:
                     # Compute averages
                     avg_temp = sum(self.temp_batch) / self.batch_size
-                    avg_moist = sum(self.moist_batch) / self.batch_size
+                    avg_moist = int(sum(self.moist_batch) / self.batch_size)
 
                     self.temp_vals.append(avg_temp)
                     self.moisture_vals.append(avg_moist)
@@ -148,12 +181,15 @@ class SerialPlotter(QtWidgets.QWidget):
 
                     self.canvas.draw()
 
+                    # Update live reading labels
+                    self.moisture_label.setText(f"Moisture: {avg_moist:.1f}")
+                    self.temp_label.setText(f"Temperature: {avg_temp:.1f} °C")
+
                     # Clear batch
                     self.temp_batch.clear()
                     self.moist_batch.clear()
         except Exception as e:
             print(f"[Error] {e}")
-
 
     def closeEvent(self, event):
         self.ser.close()
