@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from collections import deque
 
 # === Configuration ===
-PORT = 'COM11'          # Change as needed
+PORT = 'COM11'          # Change to your Arduino's COM port
 BAUD = 9600
 MAX_POINTS = 100
 
@@ -20,9 +20,10 @@ csv_writer = csv.writer(csv_file)
 csv_writer.writerow(["timestamp", "moisture", "temp_C"])
 
 # === Buffers ===
-moisture_vals = deque([0]*MAX_POINTS, maxlen=MAX_POINTS)
-temp_vals = deque([0]*MAX_POINTS, maxlen=MAX_POINTS)
-timestamps = deque(range(-MAX_POINTS, 0), maxlen=MAX_POINTS)
+moisture_vals = deque(maxlen=MAX_POINTS)
+temp_vals = deque(maxlen=MAX_POINTS)
+timestamps = deque(maxlen=MAX_POINTS)
+sample_count = 0
 
 # === Plot Setup ===
 plt.ion()
@@ -47,12 +48,15 @@ while True:
 
         if line.startswith("MOIST:"):
             moisture = int(line.split(":")[1])
-            moisture_vals.append(moisture)
+            # Store moisture but delay plotting until TEMP arrives
+            last_moisture = moisture
 
         elif line.startswith("TEMP:"):
             temp = float(line.split(":")[1])
             temp_vals.append(temp)
-            timestamps.append(timestamps[-1] + 1)
+            moisture_vals.append(last_moisture if 'last_moisture' in locals() else 0)
+            timestamps.append(sample_count)
+            sample_count += 1
 
             # Save to CSV
             csv_writer.writerow([now, moisture_vals[-1], temp])
@@ -62,14 +66,14 @@ while True:
             line1.set_data(timestamps, moisture_vals)
             line2.set_data(timestamps, temp_vals)
 
-            ax1.set_xlim(timestamps[0], timestamps[-1])
+            ax1.set_xlim(max(0, sample_count - MAX_POINTS), sample_count)
             ax1.set_ylim(min(moisture_vals) - 10, max(moisture_vals) + 10)
             ax2.set_ylim(min(temp_vals) - 2, max(temp_vals) + 2)
 
             plt.pause(0.01)
 
     except KeyboardInterrupt:
-        print("Interrupted.")
+        print("Interrupted by user.")
         break
     except Exception as e:
         print(f"Error: {e}")
