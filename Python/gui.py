@@ -12,17 +12,24 @@ from utils import (
     append_and_average,
     parse_sensor_line,
     get_iso_timestamp,
+    get_current_time_string,
     clamp_servo_angle,
+    validate_range,
+    generate_filename,
     log_sensor_data,
     update_plot,
     update_labels
 )
+from themes import apply_theme
 
 class SerialPlotter(QtWidgets.QWidget):
     def __init__(self, port='COM6', baud=9600, max_points=20, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Real-Time Sensor Plotter")
         self.resize(1000, 600)
+
+        # Set default theme
+        self.theme = "light"
 
         # Set up serial communication
         self.serial = SerialHandler(port, baud)
@@ -42,7 +49,7 @@ class SerialPlotter(QtWidgets.QWidget):
         self.start_time = datetime.now()
 
         # CSV logging setup
-        self.filename = f"sensor_log_{self.start_time.strftime('%Y%m%d_%H%M%S')}.csv"
+        self.filename = generate_filename()
         self.csv_file = open(self.filename, mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(["timestamp", "moisture", "temp_C"])
@@ -130,6 +137,14 @@ class SerialPlotter(QtWidgets.QWidget):
         servo_layout.addWidget(servo_button)
         servo_group.setLayout(servo_layout)
 
+        # Theme toggle button
+        toggle_button = QPushButton("Toggle Theme")
+        toggle_button.clicked.connect(self.toggle_theme)
+        side_panel.addWidget(toggle_button)
+
+        # Apply initial theme
+        apply_theme(self, self.theme)
+
         # Assemble side panel
         side_panel.addWidget(threshold_group)
         side_panel.addWidget(warning_group)
@@ -154,17 +169,17 @@ class SerialPlotter(QtWidgets.QWidget):
         self.clock_timer.start(1000)
 
     def update_clock(self):
-        current_time = datetime.now().strftime("%H:%M:%S")
-        self.clock_label.setText(f"Time: {current_time}")
+        self.clock_label.setText(f"Time: {get_current_time_string()}")
+
+    def toggle_theme(self):
+        self.theme = "dark" if self.theme == "light" else "light"
+        apply_theme(self, self.theme)
 
     def set_thresholds(self):
         try:
             min_val = float(self.moisture_min_input.text())
             max_val = float(self.moisture_max_input.text())
-
-            if max_val < min_val:
-                raise ValueError("Max threshold must be greater than or equal to min threshold.")
-
+            validate_range(min_val, max_val, "threshold")
             print(f"Thresholds set: Min={min_val}, Max={max_val}")
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
@@ -173,10 +188,7 @@ class SerialPlotter(QtWidgets.QWidget):
         try:
             min_warn = float(self.warning_min_input.text())
             max_warn = float(self.warning_max_input.text())
-
-            if max_warn < min_warn:
-                raise ValueError("Max warning level must be greater than or equal to min warning level.")
-
+            validate_range(min_warn, max_warn, "warning level")
             print(f"Warnings set: Min={min_warn}, Max={max_warn}")
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
