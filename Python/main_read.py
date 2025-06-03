@@ -19,6 +19,18 @@ class SerialPlotter(QtWidgets.QWidget):
         except ValueError:
             QtWidgets.QMessageBox.warning(self, "Input Error", "Please enter valid numeric thresholds.")
 
+    def send_servo_command(self, angle):
+        try:
+            angle = int(angle)
+            if not 0 <= angle <= 180:
+                raise ValueError("Angle must be between 0 and 180")
+
+            command = f"SET_SERVO:{angle}\n"
+            self.ser.write(command.encode('utf-8'))
+            print(f"[TX] {command.strip()}")
+        except ValueError:
+            QtWidgets.QMessageBox.warning(self, "Input Error", "Please enter a servo angle between 0 and 180.")
+
     def __init__(self, port='COM11', baud=9600, max_points=20, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Real-Time Sensor Plotter")
@@ -112,10 +124,22 @@ class SerialPlotter(QtWidgets.QWidget):
         readout_layout.addWidget(self.temp_label)
         readout_group.setLayout(readout_layout)
 
+        # Servo Control
+        servo_group = QGroupBox("Servo Control")
+        servo_layout = QVBoxLayout()
+        self.servo_input = QLineEdit()
+        self.servo_input.setPlaceholderText("Enter angle (0–180)")
+        servo_button = QPushButton("Move Servo")
+        servo_button.clicked.connect(lambda: self.send_servo_command(self.servo_input.text()))
+        servo_layout.addWidget(self.servo_input)
+        servo_layout.addWidget(servo_button)
+        servo_group.setLayout(servo_layout)
+
         # Assemble side panel
         side_panel.addWidget(threshold_group)
         side_panel.addWidget(warning_group)
         side_panel.addWidget(readout_group)
+        side_panel.addWidget(servo_group)
         side_panel.addStretch()
 
         main_layout.addLayout(plot_layout, stretch=3)
@@ -141,7 +165,12 @@ class SerialPlotter(QtWidgets.QWidget):
             line = self.ser.readline().decode('utf-8').strip()
             now = datetime.now().isoformat(timespec='seconds')
 
-            # Example expected line: "512,23.45"
+            # Check for servo ack
+            if line.startswith("ACK_SERVO:"):
+                print(f"[RX] {line}")
+                return
+
+            # Expect format: "512,23.45"
             parts = line.split(",")
             if len(parts) != 2:
                 return  # Skip malformed line
