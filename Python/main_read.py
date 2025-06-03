@@ -108,35 +108,52 @@ class SerialPlotter(QtWidgets.QWidget):
             line = self.ser.readline().decode('utf-8').strip()
             now = datetime.now().isoformat(timespec='seconds')
 
+            # === Raw data accumulation ===
+            if not hasattr(self, 'temp_batch'):
+                self.temp_batch = []
+                self.moist_batch = []
+                self.batch_size = 5
+
             if line.startswith("MOIST:"):
                 self.last_moisture = int(line.split(":")[1])
 
             elif line.startswith("TEMP:"):
                 temp = float(line.split(":")[1])
-                self.temp_vals.append(temp)
-                self.moisture_vals.append(getattr(self, 'last_moisture', 0))
-                self.timestamps.append(self.sample_count)
-                self.sample_count += 1
+                moist = getattr(self, 'last_moisture', 0)
 
-                # Save raw data
-                self.csv_writer.writerow([now, self.moisture_vals[-1], temp])
-                self.csv_file.flush()
+                self.temp_batch.append(temp)
+                self.moist_batch.append(moist)
 
-                # Apply FFT smoothing
-                smoothed_temp = self.fft_filter(list(self.temp_vals), keep_fraction=0.1)
-                smoothed_moist = self.fft_filter(list(self.moisture_vals), keep_fraction=0.1)
+                if len(self.temp_batch) >= self.batch_size:
+                    # Compute averages
+                    avg_temp = sum(self.temp_batch) / self.batch_size
+                    avg_moist = sum(self.moist_batch) / self.batch_size
 
-                # Plot
-                self.line1.set_data(self.timestamps, smoothed_moist)
-                self.line2.set_data(self.timestamps, smoothed_temp)
+                    self.temp_vals.append(avg_temp)
+                    self.moisture_vals.append(avg_moist)
+                    self.timestamps.append(self.sample_count)
+                    self.sample_count += 1
 
-                self.ax1.set_xlim(max(0, self.sample_count - self.max_points), self.sample_count)
-                self.ax1.set_ylim(min(smoothed_moist) - 10, max(smoothed_moist) + 10)
-                self.ax2.set_ylim(min(smoothed_temp) - 2, max(smoothed_temp) + 2)
+                    # Save to CSV
+                    self.csv_writer.writerow([now, avg_moist, avg_temp])
+                    self.csv_file.flush()
 
-                self.canvas.draw()
+                    # Update plot
+                    self.line1.set_data(self.timestamps, self.moisture_vals)
+                    self.line2.set_data(self.timestamps, self.temp_vals)
+
+                    self.ax1.set_xlim(max(0, self.sample_count - self.max_points), self.sample_count)
+                    self.ax1.set_ylim(min(self.moisture_vals) - 10, max(self.moisture_vals) + 10)
+                    self.ax2.set_ylim(min(self.temp_vals) - 2, max(self.temp_vals) + 2)
+
+                    self.canvas.draw()
+
+                    # Clear batch
+                    self.temp_batch.clear()
+                    self.moist_batch.clear()
         except Exception as e:
             print(f"[Error] {e}")
+
 
     def closeEvent(self, event):
         self.ser.close()
