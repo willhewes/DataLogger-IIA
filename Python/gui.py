@@ -127,15 +127,14 @@ class SerialPlotter(QtWidgets.QWidget):
         readout_group.setLayout(readout_layout)
 
         # Servo angle control
-        self.servo_input = QLineEdit()
-        self.servo_input.setPlaceholderText("Enter angle (0-180)")
-        servo_button = QPushButton("Move Servo")
-        servo_button.clicked.connect(lambda: self.send_servo_command(self.servo_input.text()))
-        servo_group = QGroupBox("Servo Control")
+        servo_button = QPushButton("Water Plants")
+        servo_button.clicked.connect(self.send_servo_command)
+
+        servo_group = QGroupBox("Valve Control")
         servo_layout = QVBoxLayout()
-        servo_layout.addWidget(self.servo_input)
         servo_layout.addWidget(servo_button)
         servo_group.setLayout(servo_layout)
+
 
         # Theme toggle button
         toggle_button = QPushButton("Toggle Theme")
@@ -193,13 +192,9 @@ class SerialPlotter(QtWidgets.QWidget):
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
 
-    def send_servo_command(self, angle):
-        # Clamp and send servo angle command
-        try:
-            angle = clamp_servo_angle(angle)
-            self.serial.send_command(f"SET_SERVO:{angle}")
-        except ValueError:
-            QtWidgets.QMessageBox.warning(self, "Input Error", "Please enter a servo angle between 0 and 180.")
+    def send_servo_command(self):
+        # Send servo angle command
+        self.serial.send_command("STEP_SERVO")
 
     def update_data(self):
         try:
