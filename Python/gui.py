@@ -182,28 +182,44 @@ class SerialPlotter(QtWidgets.QWidget):
         apply_theme(self, self.theme)
         
         # assembly layout
-        main_layout.addLayout(plot_area, stretch=4)  # 图表区域占更多空间
+        main_layout.addLayout(plot_area, stretch=4) 
         main_layout.addLayout(side_panel, stretch=1)
         self.setLayout(main_layout)
 
+        self.resize_visible_charts()
+
+    def resize_visible_charts(self):
+        # Clear current chart layout
+        while self.chart_layout.count():
+            item = self.chart_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.setParent(None)
+
+        # Re-add visible charts with dynamic stretch
+        visible_charts = [c['canvas'] for c in self.charts.values() if c['visible']]
+        count = len(visible_charts)
+        if count == 0:
+            return
+
+        for canvas in visible_charts:
+            self.chart_layout.addWidget(canvas, stretch=1)
+
+
+
     def create_chart(self, sensor_id, title, ylabel, color):
-        """创建新的图表"""
-        # 创建图表组件
         fig = Figure()
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
         
-        # 初始化线条
         line, = ax.plot([], [], label=ylabel, color=color)
         
-        # 配置图表
         ax.set_ylabel(ylabel)
         ax.set_xlabel("Time (s)")
         ax.grid()
         fig.suptitle(title)
         fig.legend(loc="upper right")
         
-        # 存储图表引用
         self.charts[sensor_id] = {
             'figure': fig,
             'canvas': canvas,
@@ -211,18 +227,22 @@ class SerialPlotter(QtWidgets.QWidget):
             'line': line,
             'visible': True
         }
-        
-        # 添加到布局
-        self.chart_layout.addWidget(canvas)
+    
 
     def toggle_chart_visibility(self):
-        
         for sensor_id, cb in self.chart_checkboxes.items():
             visible = cb.isChecked()
             chart = self.charts.get(sensor_id)
             if chart:
                 chart['canvas'].setVisible(visible)
                 chart['visible'] = visible
+
+        self.resize_visible_charts()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resize_visible_charts()
+
     #can ignore this funciton not useful currently
     def add_new_chart(self):
         
@@ -230,29 +250,24 @@ class SerialPlotter(QtWidgets.QWidget):
         dialog.setWindowTitle("Add New Chart")
         layout = QVBoxLayout(dialog)
         
-        # 传感器选择
         layout.addWidget(QLabel("Select Sensor:"))
         sensor_combo = QComboBox()
         sensor_combo.addItems(list(self.data_buffers.keys()))
         layout.addWidget(sensor_combo)
         
-        # 图表标题
         layout.addWidget(QLabel("Chart Title:"))
         title_edit = QLineEdit()
         layout.addWidget(title_edit)
         
-        # Y轴标签
         layout.addWidget(QLabel("Y-Axis Label:"))
         ylabel_edit = QLineEdit()
         layout.addWidget(ylabel_edit)
         
-        # 颜色选择
         layout.addWidget(QLabel("Line Color:"))
         color_combo = QComboBox()
         color_combo.addItems(['blue', 'red', 'green', 'purple', 'orange', 'brown'])
         layout.addWidget(color_combo)
         
-        # 按钮
         btn_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.StandardButton.Ok | QtWidgets.QDialogButtonBox.StandardButton.Cancel
         )
@@ -266,21 +281,17 @@ class SerialPlotter(QtWidgets.QWidget):
             ylabel = ylabel_edit.text() or sensor_id
             color = color_combo.currentText()
             
-            # 创建新图表
             self.create_chart(sensor_id, title, ylabel, color)
             
-            # 添加到复选框
             if sensor_id not in self.chart_checkboxes:
                 cb = QCheckBox(f"Show {sensor_id} chart")
                 cb.setChecked(True)
                 cb.stateChanged.connect(self.toggle_chart_visibility)
                 
-                # 找到Chart Management组并添加新复选框
                 for i in range(self.layout().count()):
                     widget = self.layout().itemAt(i).widget()
                     if isinstance(widget, QGroupBox) and widget.title() == "Chart Management":
                         layout = widget.layout()
-                        # 在添加按钮前插入新复选框
                         layout.insertWidget(layout.count()-1, cb)
                         self.chart_checkboxes[sensor_id] = cb
                         break
@@ -367,7 +378,7 @@ class SerialPlotter(QtWidgets.QWidget):
                 # log to CSV
                 log_sensor_data(self.csv_writer, now, avg_moist, avg_temp, self.csv_file)
                 
-                # uodate label
+                # update label
                 update_labels(self.moisture_label, self.temp_label, avg_moist, avg_temp)
                 
                 # update all visible chart
@@ -380,14 +391,18 @@ class SerialPlotter(QtWidgets.QWidget):
                             canvas = chart['canvas']
                             
                             line.set_data(self.timestamps, data)
-                            
+
                             if len(self.timestamps) > 1:
                                 ax.set_xlim(self.timestamps[0], self.timestamps[-1])
                             else:
                                 ax.set_xlim(0, 1)
-                            
+
                             ax.set_ylim(min(data) - 10, max(data) + 10)
+
+                            # Fix cropping by forcing layout adjustment
+                            chart['figure'].tight_layout()
                             canvas.draw()
+
 
         except Exception as e:
             print(f"[Error] {e}")
