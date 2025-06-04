@@ -31,7 +31,7 @@ class SerialPlotter(QtWidgets.QWidget):
     def __init__(self, port='COM6', baud=9600, max_points=20, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Real-Time Sensor Plotter")
-        self.resize(1200, 800)  # 增加窗口尺寸以适应更多图表
+        self.resize(1200, 800)  # increase size of window for more charts
 
         # Set default theme
         self.theme = "light"
@@ -42,7 +42,7 @@ class SerialPlotter(QtWidgets.QWidget):
         self.sample_count = 0
         self.batch_size = 10
 
-        # 使用字典管理多个数据流
+        #  instead of signal variable per data stream now we use dictionary to manage different data stream from different sensor
         self.data_buffers = {
             'moisture': deque(maxlen=max_points),
             'temp_C': deque(maxlen=max_points),
@@ -53,9 +53,9 @@ class SerialPlotter(QtWidgets.QWidget):
         }
         self.timestamps = deque(maxlen=max_points)
 
-        # 图表管理
+        # Chart management
         self.charts = {}
-        self.active_charts = ['moisture', 'temp_C']  # 默认显示的图表
+        self.active_charts = ['moisture', 'temp_C']  # default chart
 
         # Time tracking
         self.start_time = datetime.now()
@@ -72,10 +72,10 @@ class SerialPlotter(QtWidgets.QWidget):
     def setup_ui(self):
         main_layout = QHBoxLayout()
         
-        # 左侧：图表区域（可滚动）
+        # Left part: Chart area(scrollable)
         plot_area = QVBoxLayout()
         
-        # 图表容器（可滚动）
+        # chart container
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         self.chart_container = QWidget()
@@ -83,25 +83,25 @@ class SerialPlotter(QtWidgets.QWidget):
         self.chart_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         scroll_area.setWidget(self.chart_container)
         
-        # 创建初始图表
+        # initialize charts
         self.create_chart('moisture', "Moisture", "Moisture Level", 'tab:blue')
         self.create_chart('temp_C', "Temperature", "Temperature (°C)", 'tab:red')
         
         plot_area.addWidget(scroll_area)
         
-        # 右侧：控制面板
+        # Right part：control board
         side_panel = QVBoxLayout()
         
-        # 添加时钟
+        # add clock
         self.clock_label = QLabel("Time: --:--:--")
         self.clock_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
         side_panel.addWidget(self.clock_label)
         
-        # 图表管理组
+        # chart management
         chart_group = QGroupBox("Chart Management")
         chart_layout = QVBoxLayout()
         
-        # 图表切换控制
+        # chart toggle control
         self.chart_checkboxes = {}
         for sensor in self.data_buffers.keys():
             cb = QCheckBox(f"Show {sensor} chart")
@@ -110,7 +110,7 @@ class SerialPlotter(QtWidgets.QWidget):
             chart_layout.addWidget(cb)
             self.chart_checkboxes[sensor] = cb
         
-        # 添加新图表按钮
+        # add new chart
         self.new_chart_btn = QPushButton("Add New Chart")
         self.new_chart_btn.clicked.connect(self.add_new_chart)
         chart_layout.addWidget(self.new_chart_btn)
@@ -118,7 +118,7 @@ class SerialPlotter(QtWidgets.QWidget):
         chart_group.setLayout(chart_layout)
         side_panel.addWidget(chart_group)
         
-        # 阈值设置组
+        # setting threshold
         threshold_group = QGroupBox("Threshold Settings")
         threshold_layout = QVBoxLayout()
         self.moisture_min_input = QLineEdit()
@@ -133,7 +133,7 @@ class SerialPlotter(QtWidgets.QWidget):
         threshold_layout.addWidget(apply_button)
         threshold_group.setLayout(threshold_layout)
         
-        # 警告级别组
+        # setting warning
         warning_group = QGroupBox("Warning Levels")
         warning_layout = QVBoxLayout()
         self.warning_min_input = QLineEdit()
@@ -148,7 +148,7 @@ class SerialPlotter(QtWidgets.QWidget):
         warning_layout.addWidget(warning_button)
         warning_group.setLayout(warning_layout)
         
-        # 读数显示组
+        # reading display
         readout_group = QGroupBox("Current Readings")
         readout_layout = QVBoxLayout()
         self.moisture_label = QLabel("Moisture: ---")
@@ -157,7 +157,7 @@ class SerialPlotter(QtWidgets.QWidget):
         readout_layout.addWidget(self.temp_label)
         readout_group.setLayout(readout_layout)
         
-        # 舵机控制组
+        # servo control
         servo_group = QGroupBox("Servo Control")
         servo_layout = QVBoxLayout()
         self.servo_input = QLineEdit()
@@ -168,22 +168,22 @@ class SerialPlotter(QtWidgets.QWidget):
         servo_layout.addWidget(servo_button)
         servo_group.setLayout(servo_layout)
         
-        # 主题切换按钮
+        # theme toggle
         toggle_button = QPushButton("Toggle Theme")
         toggle_button.clicked.connect(self.toggle_theme)
         side_panel.addWidget(toggle_button)
         
-        # 添加各个组到侧面板
+        # add to control board
         side_panel.addWidget(threshold_group)
         side_panel.addWidget(warning_group)
         side_panel.addWidget(readout_group)
         side_panel.addWidget(servo_group)
         side_panel.addStretch()
         
-        # 应用初始主题
+        # apply initial theme
         apply_theme(self, self.theme)
         
-        # 组装主布局
+        # assembly layout
         main_layout.addLayout(plot_area, stretch=4)  # 图表区域占更多空间
         main_layout.addLayout(side_panel, stretch=1)
         self.setLayout(main_layout)
@@ -218,16 +218,16 @@ class SerialPlotter(QtWidgets.QWidget):
         self.chart_layout.addWidget(canvas)
 
     def toggle_chart_visibility(self):
-        """切换图表可见性"""
+        
         for sensor_id, cb in self.chart_checkboxes.items():
             visible = cb.isChecked()
             chart = self.charts.get(sensor_id)
             if chart:
                 chart['canvas'].setVisible(visible)
                 chart['visible'] = visible
-
+    #can ignore this funciton not useful currently
     def add_new_chart(self):
-        """添加新图表对话框"""
+        
         dialog = QtWidgets.QDialog(self)
         dialog.setWindowTitle("Add New Chart")
         layout = QVBoxLayout(dialog)
@@ -349,34 +349,34 @@ class SerialPlotter(QtWidgets.QWidget):
             moist, temp = parsed
             now = get_iso_timestamp()
             
-            # 更新批处理数据
+            # update batch processing data
             self.batch_buffers['moisture'].append(moist)
             self.batch_buffers['temp_C'].append(temp)
             
-            # 检查是否达到批处理大小
+            # check whether they reach batch size for processing
             if len(self.batch_buffers['moisture']) >= self.batch_size:
-                # 计算平均值
+                # calculate average
                 avg_moist = sum(self.batch_buffers['moisture']) / self.batch_size
                 avg_temp = sum(self.batch_buffers['temp_C']) / self.batch_size
                 
-                # 清空批处理缓冲区
+                # clear batch_buffer
                 self.batch_buffers['moisture'].clear()
                 self.batch_buffers['temp_C'].clear()
                 
-                # 更新数据缓冲区
+                # update data buffer
                 self.data_buffers['moisture'].append(avg_moist)
                 self.data_buffers['temp_C'].append(avg_temp)
                 
                 elapsed = (datetime.now() - self.start_time).total_seconds()
                 self.timestamps.append(elapsed)
 
-                # 记录到CSV
+                # log to CSV
                 log_sensor_data(self.csv_writer, now, avg_moist, avg_temp, self.csv_file)
                 
-                # 更新标签
+                # uodate label
                 update_labels(self.moisture_label, self.temp_label, avg_moist, avg_temp)
                 
-                # 更新所有可见图表
+                # update all visible chart
                 for sensor_id, chart in self.charts.items():
                     if chart['visible']:
                         data = self.data_buffers.get(sensor_id)
