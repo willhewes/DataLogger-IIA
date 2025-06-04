@@ -130,7 +130,7 @@ class SerialPlotter(QtWidgets.QWidget):
         servo_button = QPushButton("Water Plants")
         servo_button.clicked.connect(self.send_servo_command)
 
-        servo_group = QGroupBox("Valve Control")
+        servo_group = QGroupBox("Manual Watering")
         servo_layout = QVBoxLayout()
         servo_layout.addWidget(servo_button)
         servo_group.setLayout(servo_layout)
