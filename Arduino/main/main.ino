@@ -7,7 +7,7 @@
 #define PIN_MOIST A2
 #define servoPin 9
 #define closed_pos 0 // Work out needed positions
-#define open_pos 10
+#define open_pos 40
 #define watering_time 1000 // ms
 
 Servo myServo;
