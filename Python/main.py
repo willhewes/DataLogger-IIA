@@ -4,7 +4,7 @@ from gui import SerialPlotter
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
-    window = SerialPlotter(port='COM6')  # Adjust port if needed
+    window = SerialPlotter(port='COM11')  # Adjust port if needed
     window.show()
     sys.exit(app.exec())
 

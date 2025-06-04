@@ -6,15 +6,17 @@
 #define PIN_TMP36 A0
 #define PIN_MOIST A2
 #define servoPin 9
+#define closed_pos 0 // Work out needed positions
+#define open_pos 10
+#define watering_time 1000 // ms
 
 Servo myServo;
-int servoPosition = 90; // Default servo angle
 
 void setup()
 {
     Serial.begin(9600);
     myServo.attach(servoPin);
-    myServo.write(servoPosition);
+    myServo.write(closed_pos);
     analogReference(EXTERNAL); // Use external 3.3V reference on AREF
     delay(1000);               // Let everything settle
 }
@@ -26,7 +28,7 @@ void loop()
     delay(50);          // Adjust as needed
 }
 
-// === Handle incoming serial commands (e.g., servo control) ===
+// Handle incoming serial commands 
 void handleSerialInput()
 {
     if (Serial.available())
@@ -34,14 +36,13 @@ void handleSerialInput()
         String command = Serial.readStringUntil('\n');
         command.trim();
 
-        if (command.startsWith("SET_SERVO:"))
+        if (command == "STEP_SERVO")
         {
-            int pos = command.substring(10).toInt();
-            pos = constrain(pos, 0, 180);
-            myServo.write(pos);
-            servoPosition = pos;
-            Serial.print("ACK_SERVO:");
-            Serial.println(pos);
+            myServo.write(open_pos);
+            Serial.println("Open");
+            delay(watering_time);
+            myServo.write(closed_pos);
+            Serial.println("Closed");
         }
     }
 }
