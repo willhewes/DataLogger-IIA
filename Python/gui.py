@@ -14,44 +14,35 @@ from utils import (
     parse_sensor_line,
     get_iso_timestamp,
     get_current_time_string,
-    clamp_servo_angle,
     validate_range,
     generate_filename,
     log_sensor_data,
-    clamp_servo_angle,
     validate_range,
     generate_filename,
     log_sensor_data,
-    update_plot,
     update_labels
 )
 from themes import apply_theme
 
-# 可折叠面板组件
 class CollapsibleGroupBox(QGroupBox):
     def __init__(self, title="", parent=None):
         super().__init__(title, parent)
         self.setCheckable(True)
-        self.setChecked(False)  # 默认不勾选/折叠
+        self.setChecked(False) 
         self.toggled.connect(self.toggle_content)
 
-        # 内容容器（默认隐藏）
         self.content_container = QWidget()
         self.content_container.setVisible(False)
 
-        # 主布局
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.content_container)
-        main_layout.setContentsMargins(0, 5, 0, 5)  # 紧凑边距
+        main_layout.setContentsMargins(0, 5, 0, 5)  
 
     def toggle_content(self, checked):
-        """切换内容可见性"""
         self.content_container.setVisible(checked)
 
     def setLayout(self, layout):
-        """设置内容布局"""
         self.content_container.setLayout(layout)
-        # 设置内容容器的内边距
         layout.setContentsMargins(5, 5, 5, 5)
 
 class SerialPlotter(QtWidgets.QWidget):
@@ -134,8 +125,12 @@ class SerialPlotter(QtWidgets.QWidget):
         
         plot_area.addWidget(scroll_area)
         
-        # Right part：control board
-        side_panel = QVBoxLayout()
+        # Wrap right-hand panel in a scroll area
+        side_scroll_area = QScrollArea()
+        side_scroll_area.setWidgetResizable(True)
+        side_panel_container = QWidget()
+        side_panel = QVBoxLayout(side_panel_container)
+        side_scroll_area.setWidget(side_panel_container)
         
         # add clock
         self.clock_label = QLabel("Time: --:--:--")
@@ -287,8 +282,8 @@ class SerialPlotter(QtWidgets.QWidget):
         apply_theme(self, self.theme)
         
         # assembly layout
-        main_layout.addLayout(plot_area, stretch=4) 
-        main_layout.addLayout(side_panel, stretch=1)
+        main_layout.addLayout(plot_area, stretch=4)
+        main_layout.addWidget(side_scroll_area, stretch=1)
         self.setLayout(main_layout)
 
         self.resize_visible_charts()
