@@ -52,11 +52,9 @@ void loop()
 void checkThresholdAndWater(int moisture, float temp)
 {
     unsigned long now = millis();
-    if ((moisture < moist_thresh_min || moisture > moist_thresh_max) &&
-        (now - lastWateringTime > wateringCooldown))
+    if (moisture < moist_thresh_min || moisture > moist_thresh_max)
     {
         water();
-        lastWateringTime = now;
     }
 }
 
