@@ -439,7 +439,18 @@ class SerialPlotter(QtWidgets.QWidget):
             self.warning_thresholds[sensor]['min'] = min_warn
             self.warning_thresholds[sensor]['max'] = max_warn
             
-            print(f"Warnings set for {sensor}: Min={min_warn}, Max={max_warn}")
+            # Save warning thresholds
+            self.warning_thresholds[sensor]['min'] = min_warn
+            self.warning_thresholds[sensor]['max'] = max_warn
+
+            # Format the sensor name for Arduino
+            arduino_name = "temp_C" if sensor == "temp_C" else "moisture"
+
+            # Construct command string
+            command = f"SET_WARN {arduino_name} {min_warn:.2f} {max_warn:.2f}"
+            self.serial.send_command(command)
+            print(f"Sent to Arduino: {command}")
+
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
 
@@ -567,6 +578,7 @@ class SerialPlotter(QtWidgets.QWidget):
         if active_warnings:
             warning_text = "⚠️ WARNING! ⚠️\n" + "\n".join(active_warnings)
             self.warning_display.setText(warning_text)
+            self.warning_display.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             self.warning_display.setStyleSheet("""
                 QLabel {
                     color: #b30000; 

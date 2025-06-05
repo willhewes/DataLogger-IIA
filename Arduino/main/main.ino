@@ -10,6 +10,12 @@
 #define open_pos 40
 #define watering_time 1000 // ms
 
+// Warning thresholds
+float temp_warn_min = -999;
+float temp_warn_max = 999;
+int moist_warn_min = -1;
+int moist_warn_max = 1024;
+
 Servo myServo;
 
 void setup()
@@ -28,7 +34,7 @@ void loop()
     delay(50);          // Adjust as needed
 }
 
-// Handle incoming serial commands 
+// Handle incoming serial commands
 void handleSerialInput()
 {
     if (Serial.available())
@@ -43,6 +49,10 @@ void handleSerialInput()
             delay(watering_time);
             myServo.write(closed_pos);
             Serial.println("Closed");
+        }
+        else if (command.startsWith("SET_WARN "))
+        {
+            parseWarningCommand(command);
         }
     }
 }
@@ -66,4 +76,34 @@ float tmp_conv(int adcVal)
     float voltage = adcVal * (ADC_VREF / ADC_RESOLUTION);
     float tempC = (voltage - 0.5) * 100.0;
     return tempC;
+}
+
+void parseWarningCommand(const String &command)
+{
+    if (!command.startsWith("SET_WARN "))
+        return;
+
+    String rest = command.substring(9); // Remove "SET_WARN "
+    int firstSpace = rest.indexOf(' ');
+    int secondSpace = rest.indexOf(' ', firstSpace + 1);
+
+    if (firstSpace == -1 || secondSpace == -1)
+        return;
+
+    String sensor = rest.substring(0, firstSpace);
+    float minVal = rest.substring(firstSpace + 1, secondSpace).toFloat();
+    float maxVal = rest.substring(secondSpace + 1).toFloat();
+
+    if (sensor == "temp_C")
+    {
+        temp_warn_min = minVal;
+        temp_warn_max = maxVal;
+        Serial.println("Temp warning limits updated");
+    }
+    else if (sensor == "moisture")
+    {
+        moist_warn_min = (int)minVal;
+        moist_warn_max = (int)maxVal;
+        Serial.println("Moisture warning limits updated");
+    }
 }
