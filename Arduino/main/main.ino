@@ -10,6 +10,9 @@
 #define open_pos 40
 #define watering_time 1000 // ms
 
+unsigned long lastWateringTime = 0;
+unsigned long wateringCooldown = 10000; // 10 seconds cooldown in milliseconds
+
 // Threshold levels
 float temp_thresh_min = -999;
 float temp_thresh_max = 999;
@@ -48,9 +51,12 @@ void loop()
 
 void checkThresholdAndWater(int moisture, float temp)
 {
-    if (moisture < moist_thresh_min || moisture > moist_thresh_max)
+    unsigned long now = millis();
+    if ((moisture < moist_thresh_min || moisture > moist_thresh_max) &&
+        (now - lastWateringTime > wateringCooldown))
     {
         water();
+        lastWateringTime = now;
     }
 }
 
@@ -155,6 +161,12 @@ void parseWarningCommand(const String &command)
 
 void water()
 {
+    unsigned long now = millis();
+    if (now - lastWateringTime < wateringCooldown)
+        return; // Too soon, skip watering
+
+    lastWateringTime = now;
+
     myServo.write(open_pos);
     Serial.println("Open");
     delay(watering_time);
