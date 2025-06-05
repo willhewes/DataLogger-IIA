@@ -90,12 +90,16 @@ class SerialPlotter(QtWidgets.QWidget):
             'temp_C': {'active': False, 'message': ''}
         }
         
-        # Warning thresholds storage
+        # Warning  storage
         self.warning_thresholds = {
             'moisture': {'min': None, 'max': None},
             'temp_C': {'min': None, 'max': None}
         }
-        
+        # Threshold levels
+        self.threshold_levels = {
+            'moisture': {'min': None, 'max': None},
+            'temp_C': {'min': None, 'max': None}
+        }
         # Sound for warnings
         self.warning_sound = QtMultimedia.QSoundEffect()
         self.warning_sound.setSource(QtCore.QUrl.fromLocalFile("warning.wav"))
@@ -422,7 +426,19 @@ class SerialPlotter(QtWidgets.QWidget):
             min_val = float(self.threshold_controls[sensor]['min_input'].text())
             max_val = float(self.threshold_controls[sensor]['max_input'].text())
             validate_range(min_val, max_val, "threshold")
-            print(f"Thresholds set for {sensor}: Min={min_val}, Max={max_val}")
+            # Save internal GUI-side thresholds
+            self.threshold_levels[sensor]['min'] = min_val
+            self.threshold_levels[sensor]['max'] = max_val
+
+
+            # Format name for Arduino
+            arduino_name = "temp_C" if sensor == "temp_C" else "moisture"
+
+            # Construct and send threshold command to Arduino
+            command = f"SET_THRESH {arduino_name} {min_val:.2f} {max_val:.2f}"
+            self.serial.send_command(command)
+            print(f"Sent to Arduino: {command}")
+
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
 
