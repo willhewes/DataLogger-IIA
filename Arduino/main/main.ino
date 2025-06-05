@@ -36,8 +36,23 @@ void setup()
 void loop()
 {
     handleSerialInput(); // Respond to PC commands
-    sendSensorData();    // Output averaged sensor data
-    delay(50);          // Adjust as needed
+
+    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
+    float rawTemp = tmp_conv(analogRead(PIN_TMP36));
+
+    checkThresholdAndWater(rawMoisture, rawTemp);
+    sendSensorData(rawMoisture, rawTemp);
+
+    delay(50);
+}
+
+void checkThresholdAndWater(int moisture, float temp)
+{
+    if (moisture < moist_thresh_min || moisture > moist_thresh_max ||
+        temp < temp_thresh_min || temp > temp_thresh_max)
+    {
+        water();
+    }
 }
 
 // Handle incoming serial commands
@@ -50,11 +65,7 @@ void handleSerialInput()
 
         if (command == "STEP_SERVO")
         {
-            myServo.write(open_pos);
-            Serial.println("Open");
-            delay(watering_time);
-            myServo.write(closed_pos);
-            Serial.println("Closed");
+            water();
         }
         else if (command.startsWith("SET_THRESH "))
         {
@@ -68,16 +79,11 @@ void handleSerialInput()
 }
 
 // === Read and send sensor data ===
-void sendSensorData()
+void sendSensorData(int rawMoisture, float rawTemp)
 {
-    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
-    float rawTemp = tmp_conv(analogRead(PIN_TMP36));
-
-    // Serial output
     Serial.print(rawMoisture);
-
     Serial.print(",");
-    Serial.println(rawTemp, 2); // Print with 2 decimal places
+    Serial.println(rawTemp, 2);
 }
 
 // === Convert TMP36 analog reading to temperature in °C ===
@@ -146,4 +152,13 @@ void parseWarningCommand(const String &command)
         moist_warn_max = (int)maxVal;
         Serial.println("Moisture warning limits updated");
     }
+}
+
+void water()
+{
+    myServo.write(open_pos);
+    Serial.println("Open");
+    delay(watering_time);
+    myServo.write(closed_pos);
+    Serial.println("Closed");
 }
