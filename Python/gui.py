@@ -27,6 +27,33 @@ from utils import (
 )
 from themes import apply_theme
 
+# 可折叠面板组件
+class CollapsibleGroupBox(QGroupBox):
+    def __init__(self, title="", parent=None):
+        super().__init__(title, parent)
+        self.setCheckable(True)
+        self.setChecked(False)  # 默认不勾选/折叠
+        self.toggled.connect(self.toggle_content)
+
+        # 内容容器（默认隐藏）
+        self.content_container = QWidget()
+        self.content_container.setVisible(False)
+
+        # 主布局
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(self.content_container)
+        main_layout.setContentsMargins(0, 5, 0, 5)  # 紧凑边距
+
+    def toggle_content(self, checked):
+        """切换内容可见性"""
+        self.content_container.setVisible(checked)
+
+    def setLayout(self, layout):
+        """设置内容布局"""
+        self.content_container.setLayout(layout)
+        # 设置内容容器的内边距
+        layout.setContentsMargins(5, 5, 5, 5)
+
 class SerialPlotter(QtWidgets.QWidget):
     def __init__(self, port='COM6', baud=9600, max_points=20, parent=None):
         super().__init__(parent)
@@ -116,7 +143,7 @@ class SerialPlotter(QtWidgets.QWidget):
         side_panel.addWidget(self.clock_label)
         
         # chart management
-        chart_group = QGroupBox("Chart Management")
+        chart_group = CollapsibleGroupBox("Chart Management")
         chart_layout = QVBoxLayout()
         
         # chart toggle control
@@ -137,7 +164,7 @@ class SerialPlotter(QtWidgets.QWidget):
         side_panel.addWidget(chart_group)
         
         # ================== THRESHOLD SETTINGS ==================
-        threshold_group = QGroupBox("Threshold Settings")
+        threshold_group = CollapsibleGroupBox("Threshold Settings")
         threshold_layout = QVBoxLayout()
         
         # Threshold controls for each sensor
@@ -172,7 +199,7 @@ class SerialPlotter(QtWidgets.QWidget):
         threshold_group.setLayout(threshold_layout)
         
         # ================== WARNING SETTINGS ==================
-        warning_group = QGroupBox("Warning Settings")
+        warning_group = CollapsibleGroupBox("Warning Settings")
         warning_layout = QVBoxLayout()
         
         # Warning controls for each sensor
