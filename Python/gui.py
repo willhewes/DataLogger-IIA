@@ -98,7 +98,6 @@ class SerialPlotter(QtWidgets.QWidget):
         # Threshold levels
         self.threshold_levels = {
             'moisture': {'min': None, 'max': None},
-            'temp_C': {'min': None, 'max': None}
         }
 
         self.warning_playing = False
@@ -165,7 +164,7 @@ class SerialPlotter(QtWidgets.QWidget):
         
         # Threshold controls for each sensor
         self.threshold_controls = {}
-        for sensor in self.data_buffers.keys():
+        for sensor in ['moisture']:  # Only add threshold controls for moisture
             sensor_group = QGroupBox(f"{sensor.capitalize()} Thresholds")
             sensor_layout = QVBoxLayout()
             
@@ -200,7 +199,7 @@ class SerialPlotter(QtWidgets.QWidget):
         
         # Warning controls for each sensor
         self.warning_controls = {}
-        for sensor in self.data_buffers.keys():
+        for sensor in self.data_buffers.keys():  # Include both moisture and temp_C in chart toggle
             sensor_group = QGroupBox(f"{sensor.capitalize()} Warnings")
             sensor_layout = QVBoxLayout()
             
@@ -416,6 +415,10 @@ class SerialPlotter(QtWidgets.QWidget):
         apply_theme(self, self.theme)
 
     def set_thresholds(self):
+        sensor = self.sender().property('sensor')
+        if sensor != "moisture":
+            return
+
         try:
             # Get the sensor type from the button that triggered the event
             sensor = self.sender().property('sensor')
@@ -429,7 +432,7 @@ class SerialPlotter(QtWidgets.QWidget):
 
 
             # Format name for Arduino
-            arduino_name = "temp_C" if sensor == "temp_C" else "moisture"
+            arduino_name = "moisture"
 
             # Construct and send threshold command to Arduino
             command = f"SET_THRESH {arduino_name} {min_val:.2f} {max_val:.2f}"

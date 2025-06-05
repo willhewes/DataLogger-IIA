@@ -48,8 +48,7 @@ void loop()
 
 void checkThresholdAndWater(int moisture, float temp)
 {
-    if (moisture < moist_thresh_min || moisture > moist_thresh_max ||
-        temp < temp_thresh_min || temp > temp_thresh_max)
+    if (moisture < moist_thresh_min || moisture > moist_thresh_max)
     {
         water();
     }
