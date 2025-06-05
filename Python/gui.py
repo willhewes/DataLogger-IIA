@@ -3,8 +3,8 @@ import os
 import csv
 from datetime import datetime
 from collections import deque, defaultdict
-from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton, QGroupBox, 
+from PySide6 import QtWidgets, QtCore, QtMultimedia
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit, QPushButton, QGroupBox, 
                             QVBoxLayout, QCheckBox, QScrollArea, QWidget, QComboBox)
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -42,7 +42,7 @@ class SerialPlotter(QtWidgets.QWidget):
         self.sample_count = 0
         self.batch_size = 10
 
-        #  instead of signal variable per data stream now we use dictionary to manage different data stream from different sensor
+        # instead of signal variable per data stream now we use dictionary to manage different data stream from different sensor
         self.data_buffers = {
             'moisture': deque(maxlen=max_points),
             'temp_C': deque(maxlen=max_points),
@@ -65,6 +65,24 @@ class SerialPlotter(QtWidgets.QWidget):
         self.csv_file = open(self.filename, mode='w', newline='')
         self.csv_writer = csv.writer(self.csv_file)
         self.csv_writer.writerow(["timestamp", "moisture", "temp_C"])
+
+        # Warning system
+        self.warnings = {
+            'moisture': {'active': False, 'message': ''},
+            'temp_C': {'active': False, 'message': ''}
+        }
+        
+        # Warning thresholds storage
+        self.warning_thresholds = {
+            'moisture': {'min': None, 'max': None},
+            'temp_C': {'min': None, 'max': None}
+        }
+        
+        # Sound for warnings
+        self.warning_sound = QtMultimedia.QSoundEffect()
+        self.warning_sound.setSource(QtCore.QUrl.fromLocalFile("warning.wav"))
+        self.warning_sound.setVolume(0.5)
+        self.warning_playing = False
 
         self.setup_ui()
         self.setup_timer()
@@ -118,37 +136,96 @@ class SerialPlotter(QtWidgets.QWidget):
         chart_group.setLayout(chart_layout)
         side_panel.addWidget(chart_group)
         
-        # setting threshold
+        # ================== THRESHOLD SETTINGS ==================
         threshold_group = QGroupBox("Threshold Settings")
         threshold_layout = QVBoxLayout()
-        self.moisture_min_input = QLineEdit()
-        self.moisture_max_input = QLineEdit()
-        apply_button = QPushButton("Set Thresholds")
-        apply_button.clicked.connect(self.set_thresholds)
-        self.moisture_min_input.setPlaceholderText("Moisture Min")
-        self.moisture_max_input.setPlaceholderText("Moisture Max")
-        threshold_layout.addWidget(QLabel("Enter Thresholds:"))
-        threshold_layout.addWidget(self.moisture_min_input)
-        threshold_layout.addWidget(self.moisture_max_input)
-        threshold_layout.addWidget(apply_button)
+        
+        # Threshold controls for each sensor
+        self.threshold_controls = {}
+        for sensor in self.data_buffers.keys():
+            sensor_group = QGroupBox(f"{sensor.capitalize()} Thresholds")
+            sensor_layout = QVBoxLayout()
+            
+            min_input = QLineEdit()
+            max_input = QLineEdit()
+            apply_button = QPushButton(f"Set {sensor} Thresholds")
+            apply_button.setProperty('sensor', sensor)  # Store sensor type
+            apply_button.clicked.connect(self.set_thresholds)
+            
+            min_input.setPlaceholderText(f"{sensor} Min")
+            max_input.setPlaceholderText(f"{sensor} Max")
+            
+            sensor_layout.addWidget(QLabel(f"Set thresholds for {sensor}:"))
+            sensor_layout.addWidget(min_input)
+            sensor_layout.addWidget(max_input)
+            sensor_layout.addWidget(apply_button)
+            
+            sensor_group.setLayout(sensor_layout)
+            threshold_layout.addWidget(sensor_group)
+            
+            # Save control references
+            self.threshold_controls[sensor] = {
+                'min_input': min_input,
+                'max_input': max_input
+            }
+        
         threshold_group.setLayout(threshold_layout)
         
-        # setting warning
-        warning_group = QGroupBox("Warning Levels")
+        # ================== WARNING SETTINGS ==================
+        warning_group = QGroupBox("Warning Settings")
         warning_layout = QVBoxLayout()
-        self.warning_min_input = QLineEdit()
-        self.warning_max_input = QLineEdit()
-        warning_button = QPushButton("Set Warnings")
-        warning_button.clicked.connect(self.set_warnings)
-        self.warning_min_input.setPlaceholderText("Warning Min")
-        self.warning_max_input.setPlaceholderText("Warning Max")
-        warning_layout.addWidget(QLabel("Enter Warning Levels:"))
-        warning_layout.addWidget(self.warning_min_input)
-        warning_layout.addWidget(self.warning_max_input)
-        warning_layout.addWidget(warning_button)
+        
+        # Warning controls for each sensor
+        self.warning_controls = {}
+        for sensor in self.data_buffers.keys():
+            sensor_group = QGroupBox(f"{sensor.capitalize()} Warnings")
+            sensor_layout = QVBoxLayout()
+            
+            min_input = QLineEdit()
+            max_input = QLineEdit()
+            apply_button = QPushButton(f"Set {sensor} Warnings")
+            apply_button.setProperty('sensor', sensor)  # Store sensor type
+            apply_button.clicked.connect(self.set_warnings)
+            
+            min_input.setPlaceholderText(f"{sensor} Min Warning")
+            max_input.setPlaceholderText(f"{sensor} Max Warning")
+            
+            sensor_layout.addWidget(QLabel(f"Set warnings for {sensor}:"))
+            sensor_layout.addWidget(min_input)
+            sensor_layout.addWidget(max_input)
+            sensor_layout.addWidget(apply_button)
+            
+            sensor_group.setLayout(sensor_layout)
+            warning_layout.addWidget(sensor_group)
+            
+            # Save control references
+            self.warning_controls[sensor] = {
+                'min_input': min_input,
+                'max_input': max_input
+            }
+        
         warning_group.setLayout(warning_layout)
         
-        # reading display
+        # ================== WARNING DISPLAY ==================
+        warning_display_group = QGroupBox("Active Warnings")
+        warning_display_layout = QVBoxLayout()
+        self.warning_display = QLabel("No active warnings")
+        self.warning_display.setStyleSheet("""
+            QLabel {
+                color: black; 
+                background-color: #f0f0f0; 
+                padding: 10px; 
+                border: 1px solid #d0d0d0;
+                border-radius: 5px;
+                font-weight: normal;
+            }
+        """)
+        self.warning_display.setWordWrap(True)
+        self.warning_display.setMinimumHeight(80)
+        warning_display_layout.addWidget(self.warning_display)
+        warning_display_group.setLayout(warning_display_layout)
+        
+        # ================== READOUT DISPLAY ==================
         readout_group = QGroupBox("Current Readings")
         readout_layout = QVBoxLayout()
         self.moisture_label = QLabel("Moisture: ---")
@@ -157,7 +234,7 @@ class SerialPlotter(QtWidgets.QWidget):
         readout_layout.addWidget(self.temp_label)
         readout_group.setLayout(readout_layout)
 
-        # Servo angle control
+        # ================== SERVO CONTROL ==================
         servo_button = QPushButton("Water Plants")
         servo_button.clicked.connect(self.send_servo_command)
 
@@ -166,14 +243,15 @@ class SerialPlotter(QtWidgets.QWidget):
         servo_layout.addWidget(servo_button)
         servo_group.setLayout(servo_layout)
         
-        # theme toggle
+        # ================== THEME TOGGLE ==================
         toggle_button = QPushButton("Toggle Theme")
         toggle_button.clicked.connect(self.toggle_theme)
         side_panel.addWidget(toggle_button)
         
-        # add to control board
+        # ================== ASSEMBLE SIDEPANEL ==================
         side_panel.addWidget(threshold_group)
         side_panel.addWidget(warning_group)
+        side_panel.addWidget(warning_display_group)
         side_panel.addWidget(readout_group)
         side_panel.addWidget(servo_group)
         side_panel.addStretch()
@@ -205,8 +283,6 @@ class SerialPlotter(QtWidgets.QWidget):
         for canvas in visible_charts:
             self.chart_layout.addWidget(canvas, stretch=1)
 
-
-
     def create_chart(self, sensor_id, title, ylabel, color):
         fig = Figure()
         canvas = FigureCanvas(fig)
@@ -228,7 +304,6 @@ class SerialPlotter(QtWidgets.QWidget):
             'visible': True
         }
     
-
     def toggle_chart_visibility(self):
         for sensor_id, cb in self.chart_checkboxes.items():
             visible = cb.isChecked()
@@ -243,9 +318,7 @@ class SerialPlotter(QtWidgets.QWidget):
         super().resizeEvent(event)
         self.resize_visible_charts()
 
-    #can ignore this funciton not useful currently
     def add_new_chart(self):
-        
         dialog = QtWidgets.QDialog(self)
         dialog.setWindowTitle("Add New Chart")
         layout = QVBoxLayout(dialog)
@@ -275,7 +348,7 @@ class SerialPlotter(QtWidgets.QWidget):
         btn_box.rejected.connect(dialog.reject)
         layout.addWidget(btn_box)
         
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+        if dialog.exec() == QtWidgets.QDialog.Accepted:
             sensor_id = sensor_combo.currentText()
             title = title_edit.text() or f"{sensor_id} Chart"
             ylabel = ylabel_edit.text() or sensor_id
@@ -295,6 +368,11 @@ class SerialPlotter(QtWidgets.QWidget):
                         layout.insertWidget(layout.count()-1, cb)
                         self.chart_checkboxes[sensor_id] = cb
                         break
+
+            # Initialize warning system for new sensor
+            if sensor_id not in self.warnings:
+                self.warnings[sensor_id] = {'active': False, 'message': ''}
+                self.warning_thresholds[sensor_id] = {'min': None, 'max': None}
 
     def setup_timer(self):
         # Run update loop every 20ms
@@ -316,19 +394,30 @@ class SerialPlotter(QtWidgets.QWidget):
 
     def set_thresholds(self):
         try:
-            min_val = float(self.moisture_min_input.text())
-            max_val = float(self.moisture_max_input.text())
+            # Get the sensor type from the button that triggered the event
+            sensor = self.sender().property('sensor')
+            
+            min_val = float(self.threshold_controls[sensor]['min_input'].text())
+            max_val = float(self.threshold_controls[sensor]['max_input'].text())
             validate_range(min_val, max_val, "threshold")
-            print(f"Thresholds set: Min={min_val}, Max={max_val}")
+            print(f"Thresholds set for {sensor}: Min={min_val}, Max={max_val}")
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
 
     def set_warnings(self):
         try:
-            min_warn = float(self.warning_min_input.text())
-            max_warn = float(self.warning_max_input.text())
+            # Get the sensor type from the button that triggered the event
+            sensor = self.sender().property('sensor')
+            
+            min_warn = float(self.warning_controls[sensor]['min_input'].text())
+            max_warn = float(self.warning_controls[sensor]['max_input'].text())
             validate_range(min_warn, max_warn, "warning level")
-            print(f"Warnings set: Min={min_warn}, Max={max_warn}")
+            
+            # Save warning thresholds
+            self.warning_thresholds[sensor]['min'] = min_warn
+            self.warning_thresholds[sensor]['max'] = max_warn
+            
+            print(f"Warnings set for {sensor}: Min={min_warn}, Max={max_warn}")
         except ValueError as e:
             QtWidgets.QMessageBox.warning(self, "Input Error", str(e))
 
@@ -402,10 +491,82 @@ class SerialPlotter(QtWidgets.QWidget):
                             # Fix cropping by forcing layout adjustment
                             chart['figure'].tight_layout()
                             canvas.draw()
-
+                
+                # Check for warnings
+                self.check_warnings()
 
         except Exception as e:
             print(f"[Error] {e}")
+
+    def check_warnings(self):
+        active_warnings = []
+        warning_occurred = False
+        
+        # Check warning status for each sensor
+        for sensor in self.data_buffers.keys():
+            # Get current value and warning settings
+            current_value = self.data_buffers[sensor][-1] if self.data_buffers[sensor] else None
+            min_warn = self.warning_thresholds[sensor]['min']
+            max_warn = self.warning_thresholds[sensor]['max']
+            
+            # If warning values are set and we have current value
+            if min_warn is not None and max_warn is not None and current_value is not None:
+                # Check if below minimum warning
+                if current_value < min_warn:
+                    self.warnings[sensor]['active'] = True
+                    message = f"{sensor.capitalize()} is too low: {current_value:.1f} < {min_warn:.1f}"
+                    self.warnings[sensor]['message'] = message
+                    active_warnings.append(message)
+                    warning_occurred = True
+                # Check if above maximum warning
+                elif current_value > max_warn:
+                    self.warnings[sensor]['active'] = True
+                    message = f"{sensor.capitalize()} is too high: {current_value:.1f} > {max_warn:.1f}"
+                    self.warnings[sensor]['message'] = message
+                    active_warnings.append(message)
+                    warning_occurred = True
+                # Value is within normal range
+                else:
+                    self.warnings[sensor]['active'] = False
+                    self.warnings[sensor]['message'] = ''
+            else:
+                self.warnings[sensor]['active'] = False
+                self.warnings[sensor]['message'] = ''
+        
+        # Play warning sound if any warning is active
+        if warning_occurred and not self.warning_playing:
+            self.warning_sound.play()
+            self.warning_playing = True
+        elif not warning_occurred and self.warning_playing:
+            self.warning_sound.stop()
+            self.warning_playing = False
+        
+        # Update warning display
+        if active_warnings:
+            warning_text = "⚠️ WARNING! ⚠️\n" + "\n".join(active_warnings)
+            self.warning_display.setText(warning_text)
+            self.warning_display.setStyleSheet("""
+                QLabel {
+                    color: #b30000; 
+                    background-color: #ffe6e6; 
+                    padding: 10px; 
+                    border: 2px solid #ff6666;
+                    border-radius: 5px;
+                    font-weight: bold;
+                }
+            """)
+        else:
+            self.warning_display.setText("No active warnings")
+            self.warning_display.setStyleSheet("""
+                QLabel {
+                    color: black; 
+                    background-color: #f0f0f0; 
+                    padding: 10px; 
+                    border: 1px solid #d0d0d0;
+                    border-radius: 5px;
+                    font-weight: normal;
+                }
+            """)
 
     def closeEvent(self, event):
         # Clean up on window close
