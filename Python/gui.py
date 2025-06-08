@@ -95,7 +95,7 @@ class SerialPlotter(QtWidgets.QWidget):
         }
         # Threshold levels
         self.threshold_levels = {
-            'moisture': {'min': None, 'max': None},
+            'moisture': {'min': None},
         }
 
         # Sound for warnings
@@ -181,17 +181,14 @@ class SerialPlotter(QtWidgets.QWidget):
             sensor_group = QGroupBox(f"{sensor.capitalize()} Thresholds")
             sensor_layout = QVBoxLayout()
             
-            min_input = QLineEdit()
             max_input = QLineEdit()
             apply_button = QPushButton(f"Set {sensor} Thresholds")
             apply_button.setProperty('sensor', sensor)  # Store sensor type
             apply_button.clicked.connect(self.set_thresholds)
             
-            min_input.setPlaceholderText(f"{sensor} Min")
             max_input.setPlaceholderText(f"{sensor} Max")
             
             sensor_layout.addWidget(QLabel(f"Set thresholds for {sensor}:"))
-            sensor_layout.addWidget(min_input)
             sensor_layout.addWidget(max_input)
             sensor_layout.addWidget(apply_button)
             
@@ -200,7 +197,6 @@ class SerialPlotter(QtWidgets.QWidget):
             
             # Save control references
             self.threshold_controls[sensor] = {
-                'min_input': min_input,
                 'max_input': max_input
             }
         
