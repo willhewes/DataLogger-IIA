@@ -99,6 +99,10 @@ class SerialPlotter(QtWidgets.QWidget):
             'moisture': {'min': None, 'max': None},
         }
 
+        # Sound for warnings
+        self.warning_sound = QtMultimedia.QSoundEffect()
+        self.warning_sound.setSource(QtCore.QUrl.fromLocalFile("Python/Warning_Sound.wav"))
+        self.warning_sound.setVolume(0.5)
         self.warning_playing = False
 
         # Tracking variables (must be in __init__)
@@ -616,9 +620,10 @@ class SerialPlotter(QtWidgets.QWidget):
         
         # Play warning sound if any warning is active
         if warning_occurred and not self.warning_playing:
-            QtWidgets.QApplication.beep()
+            self.warning_sound.play()
             self.warning_playing = True
         elif not warning_occurred and self.warning_playing:
+            self.warning_sound.stop()
             self.warning_playing = False
         
         # Update warning display
