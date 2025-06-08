@@ -5,7 +5,7 @@ light_theme = """
     }
     QGroupBox {
         border: 1px solid gray;
-        margin-top: 6px;
+        margin-top: 12px;
     }
     QGroupBox::title {
         subcontrol-origin: margin;
@@ -23,6 +23,7 @@ light_theme = """
         border: 1px solid #888;
         background-color: #007acc;
         color: #fff;
+        font-weight: bold;
     }
 """
 
@@ -33,7 +34,7 @@ dark_theme = """
     }
     QGroupBox {
         border: 1px solid #666;
-        margin-top: 6px;
+        margin-top: 12px;
     }
     QGroupBox::title {
         subcontrol-origin: margin;
@@ -51,6 +52,7 @@ dark_theme = """
         border: 1px solid #444;
         background-color: #007acc;
         color: #fff;
+        font-weight: bold;
     }
 """
 
