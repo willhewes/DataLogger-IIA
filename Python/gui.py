@@ -602,7 +602,7 @@ class SerialPlotter(QtWidgets.QWidget):
                 # Check if above maximum warning
                 elif current_value > max_warn:
                     self.warnings[sensor]['active'] = True
-                    message = f"{sensor.capitalize()} is too high: {current_value:.1f} > {max_warn:.1f}"
+                    message = f"{sensor.capitalize()} is too high:\n{current_value:.1f} > {max_warn:.1f}"
                     self.warnings[sensor]['message'] = message
                     active_warnings.append(message)
                     warning_occurred = True
