@@ -9,7 +9,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from serial_handler import SerialHandler
 from utils import (
-    append_and_average,
     parse_sensor_line,
     get_iso_timestamp,
     get_current_time_string,
@@ -134,8 +133,8 @@ class SerialPlotter(QtWidgets.QWidget):
         scroll_area.setWidget(self.chart_container)
         
         # initialize charts
-        self.create_chart('moisture', "Moisture", "Moisture Level", 'tab:blue')
-        self.create_chart('temp_C', "Temperature", "Temperature (°C)", 'tab:red')
+        self.create_chart('moisture', "Moisture", "Moisture Level", '#1abc9c')
+        self.create_chart('temp_C', "Temperature", "Temperature (°C)", '#e67e22')
         
         plot_area.addWidget(scroll_area)
         
@@ -330,7 +329,10 @@ class SerialPlotter(QtWidgets.QWidget):
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
         
-        line, = ax.plot([], [], label=ylabel, color=color)
+        line, = ax.plot([], [], label=ylabel, color=color, linewidth=2.5)
+        min_warn_line = ax.axhline(y=0, color='blue', linestyle='--', linewidth=2, visible=False)
+        max_warn_line = ax.axhline(y=0, color='red', linestyle='--', linewidth=2, visible=False)
+
         
         ax.set_ylabel(ylabel)
         ax.set_xlabel("Time (s)")
@@ -343,6 +345,8 @@ class SerialPlotter(QtWidgets.QWidget):
             'canvas': canvas,
             'axis': ax,
             'line': line,
+            'min_warn_line': min_warn_line,
+            'max_warn_line': max_warn_line,
             'visible': True
         }
     
@@ -593,6 +597,23 @@ class SerialPlotter(QtWidgets.QWidget):
             current_value = self.data_buffers[sensor][-1] if self.data_buffers[sensor] else None
             min_warn = self.warning_thresholds[sensor]['min']
             max_warn = self.warning_thresholds[sensor]['max']
+            
+            # Show warning threshold lines on chart
+            chart = self.charts.get(sensor)
+            if chart:
+                if min_warn is not None:
+                    chart['min_warn_line'].set_ydata(min_warn)
+                    chart['min_warn_line'].set_visible(True)
+                else:
+                    chart['min_warn_line'].set_visible(False)
+
+                if max_warn is not None:
+                    chart['max_warn_line'].set_ydata(max_warn)
+                    chart['max_warn_line'].set_visible(True)
+                else:
+                    chart['max_warn_line'].set_visible(False)
+
+                chart['canvas'].draw()
             
             # If warning values are set and we have current value
             if min_warn is not None and max_warn is not None and current_value is not None:
