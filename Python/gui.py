@@ -1,4 +1,3 @@
-import sys
 import os
 import csv
 from datetime import datetime
@@ -101,6 +100,17 @@ class SerialPlotter(QtWidgets.QWidget):
         }
 
         self.warning_playing = False
+
+        # Tracking variables (must be in __init__)
+        self.min_readings = {'moisture': float('inf'), 'temp_C': float('inf')}
+        self.max_readings = {'moisture': float('-inf'), 'temp_C': float('-inf')}
+
+
+        # Min/max labels
+        self.moisture_min_label = QLabel("Min Moisture: ---")
+        self.moisture_max_label = QLabel("Max Moisture: ---")
+        self.temp_min_label = QLabel("Min Temp: ---")
+        self.temp_max_label = QLabel("Max Temp: ---")
 
         self.setup_ui()
         self.setup_timer()
@@ -253,7 +263,13 @@ class SerialPlotter(QtWidgets.QWidget):
         self.moisture_label = QLabel("Moisture: ---")
         self.temp_label = QLabel("Temperature: ---")
         readout_layout.addWidget(self.moisture_label)
+        readout_layout.addWidget(self.moisture_min_label)
+        readout_layout.addWidget(self.moisture_max_label)
+        readout_layout.addSpacing(5)
         readout_layout.addWidget(self.temp_label)
+        readout_layout.addWidget(self.temp_min_label)
+        readout_layout.addWidget(self.temp_max_label)
+
         readout_group.setLayout(readout_layout)
 
         # ================== SERVO CONTROL ==================
@@ -501,7 +517,19 @@ class SerialPlotter(QtWidgets.QWidget):
                 # calculate average
                 avg_moist = sum(self.batch_buffers['moisture']) / self.batch_size
                 avg_temp = sum(self.batch_buffers['temp_C']) / self.batch_size
-                
+
+                # Update min/max tracking
+                self.min_readings['moisture'] = min(self.min_readings['moisture'], avg_moist)
+                self.max_readings['moisture'] = max(self.max_readings['moisture'], avg_moist)
+                self.min_readings['temp_C'] = min(self.min_readings['temp_C'], avg_temp)
+                self.max_readings['temp_C'] = max(self.max_readings['temp_C'], avg_temp)
+
+                # Update UI
+                self.moisture_min_label.setText(f"Min Moisture: {self.min_readings['moisture']:.1f}")
+                self.moisture_max_label.setText(f"Max Moisture: {self.max_readings['moisture']:.1f}")
+                self.temp_min_label.setText(f"Min Temp: {self.min_readings['temp_C']:.1f} °C")
+                self.temp_max_label.setText(f"Max Temp: {self.max_readings['temp_C']:.1f} °C")
+
                 # clear batch_buffer
                 self.batch_buffers['moisture'].clear()
                 self.batch_buffers['temp_C'].clear()
@@ -518,7 +546,11 @@ class SerialPlotter(QtWidgets.QWidget):
                 
                 # update label
                 update_labels(self.moisture_label, self.temp_label, avg_moist, avg_temp)
-                
+                self.moisture_min_label.setText(f"Min Moisture: {self.min_readings['moisture']:.1f}")
+                self.moisture_max_label.setText(f"Max Moisture: {self.max_readings['moisture']:.1f}")
+                self.temp_min_label.setText(f"Min Temp: {self.min_readings['temp_C']:.1f} °C")
+                self.temp_max_label.setText(f"Max Temp: {self.max_readings['temp_C']:.1f} °C")
+
                 # update all visible chart
                 for sensor_id, chart in self.charts.items():
                     if chart['visible']:
