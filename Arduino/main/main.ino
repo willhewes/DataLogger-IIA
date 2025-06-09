@@ -99,7 +99,7 @@ float tmp_conv(int adcVal)
 int convertMoistureToPercent(int rawVal)
 {
     const int dry = 520;
-    const int wet = 200;
+    const int wet = 250;
 
     // Clamp value within bounds
     if (rawVal > dry)
