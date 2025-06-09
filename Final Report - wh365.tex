@@ -28,6 +28,7 @@
 \usepackage{changepage}
 \usepackage{tikz}
 \usepackage{pdfpages}
+\usepackage[table]{xcolor}
 \usetikzlibrary{shapes.geometric, arrows}
 % --- C++ Style ---
 \lstdefinestyle{cpp-style}{
@@ -173,9 +174,9 @@ Section \ref{sec:Further_Improvements}.
         \hline
         4030054 & Temperature sensor & 1.38 \\
         \hline
-        3167525 & Light sensor & 1.43 \\
+        \rowcolor{yellow!60} 3167525 & Light sensor & 1.43 \\
         \hline
-        SN36746 & Humidity sensor & 0.91 \\
+        \rowcolor{yellow!60} SN36746 & Humidity sensor & 0.91 \\
         \hline
         \multicolumn{2}{|c|}{\textbf{\large Total}} & \textbf{\large 11.35} \\
         \hline
@@ -196,7 +197,7 @@ Section \ref{sec:Further_Improvements}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{DataLogger Block Diagram2.png}
+    \includegraphics[width=0.8\textwidth]{Datalogger Block Diagram - final.png}
     \caption{Block Diagram for the automatic watering system}
     \label{fig:Block_Diagram_for_the_automatic_watering_system}
 \end{figure}
@@ -211,7 +212,7 @@ Section \ref{sec:Further_Improvements}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram.png}
+    \includegraphics[width=0.8\textwidth]{Analogue Circuit Diagram - final.png}
     \caption{Analogue Circuit Diagram for the automatic watering system}
     \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
 \end{figure}

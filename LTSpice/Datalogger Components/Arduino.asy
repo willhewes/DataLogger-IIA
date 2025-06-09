@@ -1,7 +1,7 @@
 Version 4
 SymbolType BLOCK
 RECTANGLE Normal 102 216 -101 -68
-TEXT -32 -46 Left 2 Arduino
+TEXT -46 75 Left 2 Arduino
 PIN 96 192 RIGHT 8
 PINATTR PinName TX
 PINATTR SpiceOrder 1
@@ -80,3 +80,6 @@ PINATTR SpiceOrder 26
 PIN 96 208 LEFT 8
 PINATTR PinName RX
 PINATTR SpiceOrder 27
+PIN 96 -32 BOTTOM 8
+PINATTR PinName AREF
+PINATTR SpiceOrder 22
