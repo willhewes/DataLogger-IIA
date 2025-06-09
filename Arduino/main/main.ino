@@ -101,15 +101,10 @@ int convertMoistureToPercent(int rawVal)
     const int dry = 520;
     const int wet = 250;
 
-    // Clamp value within bounds
-    if (rawVal > dry)
-        rawVal = dry;
-    if (rawVal < wet)
-        rawVal = wet;
+    rawVal = constrain(rawVal, wet, dry);
 
-    // Linear mapping
-    int percent = (dry - rawVal) * 100 / (dry - wet);
-    return percent;
+    float percent = (float)(dry - rawVal) * 100 / (dry - wet);
+    return (int)percent;
 }
 
 void parseThresholdCommand(const String &command)
@@ -119,19 +114,19 @@ void parseThresholdCommand(const String &command)
 
     String rest = command.substring(11); // Remove "SET_THRESH "
     int firstSpace = rest.indexOf(' ');
-    int secondSpace = rest.indexOf(' ', firstSpace + 1);
 
-    if (firstSpace == -1 || secondSpace == -1)
+    if (firstSpace == -1)
         return;
 
     String sensor = rest.substring(0, firstSpace);
-    float minVal = rest.substring(firstSpace + 1, secondSpace).toFloat();
+    float minVal = rest.substring(firstSpace + 1).toFloat();
 
     if (sensor == "moisture")
     {
         minVal = constrain(minVal, 0, 100);
         moist_thresh_min = (int)minVal;
-        Serial.println("Moisture threshold limits updated");
+        Serial.print("Received moisture threshold min: ");
+        Serial.println(minVal);
     }
 }
 

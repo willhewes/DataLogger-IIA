@@ -568,7 +568,10 @@ class SerialPlotter(QtWidgets.QWidget):
                             else:
                                 ax.set_xlim(0, 1)
 
-                            ax.set_ylim(min(data) - 10, max(data) + 10)
+                            if sensor_id == 'moisture':
+                                ax.set_ylim(0, 100)
+                            else:
+                                ax.set_ylim(min(data) - 10, max(data) + 10)
 
                             # Fix cropping by forcing layout adjustment
                             chart['figure'].tight_layout()
