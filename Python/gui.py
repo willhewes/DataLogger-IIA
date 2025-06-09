@@ -181,15 +181,15 @@ class SerialPlotter(QtWidgets.QWidget):
             sensor_group = QGroupBox(f"{sensor.capitalize()} Thresholds")
             sensor_layout = QVBoxLayout()
             
-            max_input = QLineEdit()
+            min_input = QLineEdit()
             apply_button = QPushButton(f"Set {sensor} Thresholds")
             apply_button.setProperty('sensor', sensor)  # Store sensor type
             apply_button.clicked.connect(self.set_thresholds)
             
-            max_input.setPlaceholderText(f"{sensor} Max")
+            min_input.setPlaceholderText(f"{sensor} Min")
             
-            sensor_layout.addWidget(QLabel(f"Set thresholds for {sensor}:"))
-            sensor_layout.addWidget(max_input)
+            sensor_layout.addWidget(QLabel(f"Set minimum threshold for {sensor}:"))
+            sensor_layout.addWidget(min_input)
             sensor_layout.addWidget(apply_button)
             
             sensor_group.setLayout(sensor_layout)
@@ -197,7 +197,7 @@ class SerialPlotter(QtWidgets.QWidget):
             
             # Save control references
             self.threshold_controls[sensor] = {
-                'max_input': max_input
+                'min_input': min_input
             }
         
         threshold_group.setLayout(threshold_layout)
@@ -328,7 +328,7 @@ class SerialPlotter(QtWidgets.QWidget):
         line, = ax.plot([], [], label=ylabel, color=color, linewidth=2.5)
         min_warn_line = ax.axhline(y=0, color='blue', linestyle='--', linewidth=2, visible=False)
         max_warn_line = ax.axhline(y=0, color='red', linestyle='--', linewidth=2, visible=False)
-
+        min_thresh_line = ax.axhline(y=0, color='black', linestyle='--', linewidth=2, visible=False)
         
         ax.set_ylabel(ylabel)
         ax.set_xlabel("Time (s)")
@@ -343,6 +343,7 @@ class SerialPlotter(QtWidgets.QWidget):
             'line': line,
             'min_warn_line': min_warn_line,
             'max_warn_line': max_warn_line,
+            'min_thresh_line': min_thresh_line,
             'visible': True
         }
     
@@ -444,18 +445,14 @@ class SerialPlotter(QtWidgets.QWidget):
             sensor = self.sender().property('sensor')
             
             min_val = float(self.threshold_controls[sensor]['min_input'].text())
-            max_val = float(self.threshold_controls[sensor]['max_input'].text())
-            validate_range(min_val, max_val, "threshold")
             # Save internal GUI-side thresholds
             self.threshold_levels[sensor]['min'] = min_val
-            self.threshold_levels[sensor]['max'] = max_val
-
 
             # Format name for Arduino
             arduino_name = "moisture"
 
             # Construct and send threshold command to Arduino
-            command = f"SET_THRESH {arduino_name} {min_val:.2f} {max_val:.2f}"
+            command = f"SET_THRESH {arduino_name} {min_val:.0f}"
             self.serial.send_command(command)
             print(f"Sent to Arduino: {command}")
 
@@ -608,6 +605,15 @@ class SerialPlotter(QtWidgets.QWidget):
                     chart['max_warn_line'].set_visible(True)
                 else:
                     chart['max_warn_line'].set_visible(False)
+
+                min_thresh = self.threshold_levels.get(sensor, {}).get('min')
+
+                if 'min_thresh_line' in chart:
+                    if min_thresh is not None:
+                        chart['min_thresh_line'].set_ydata(min_thresh)
+                        chart['min_thresh_line'].set_visible(True)
+                    else:
+                        chart['min_thresh_line'].set_visible(False)
 
                 chart['canvas'].draw()
             

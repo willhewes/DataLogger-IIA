@@ -14,10 +14,7 @@ unsigned long lastWateringTime = 0;
 unsigned long wateringCooldown = 10000; // 10 seconds cooldown in milliseconds
 
 // Threshold levels
-float temp_thresh_min = -999;
-float temp_thresh_max = 999;
 int moist_thresh_min = -1;
-int moist_thresh_max = 1024;
 
 // Warning thresholds
 float temp_warn_min = -999;
@@ -40,11 +37,13 @@ void loop()
 {
     handleSerialInput(); // Respond to PC commands
 
-    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
+    int rawMoisture = analogRead(PIN_MOIST);
+    int Moisture = convertMoistureToPercent(rawMoisture);
+
     float rawTemp = tmp_conv(analogRead(PIN_TMP36));
 
-    checkThresholdAndWater(rawMoisture, rawTemp);
-    sendSensorData(rawMoisture, rawTemp);
+    checkThresholdAndWater(Moisture, rawTemp);
+    sendSensorData(Moisture, rawTemp);
 
     delay(50);
 }
@@ -52,7 +51,7 @@ void loop()
 void checkThresholdAndWater(int moisture, float temp)
 {
     unsigned long now = millis();
-    if (moisture < moist_thresh_min || moisture > moist_thresh_max)
+    if (moisture < moist_thresh_min)
     {
         water();
     }
@@ -82,9 +81,9 @@ void handleSerialInput()
 }
 
 // === Read and send sensor data ===
-void sendSensorData(int rawMoisture, float rawTemp)
+void sendSensorData(int Moisture, float rawTemp)
 {
-    Serial.print(rawMoisture);
+    Serial.print(Moisture);
     Serial.print(",");
     Serial.println(rawTemp, 2);
 }
@@ -95,6 +94,22 @@ float tmp_conv(int adcVal)
     float voltage = adcVal * (ADC_VREF / ADC_RESOLUTION);
     float tempC = (voltage - 0.5) * 100.0;
     return tempC;
+}
+
+int convertMoistureToPercent(int rawVal)
+{
+    const int dry = 520;
+    const int wet = 200;
+
+    // Clamp value within bounds
+    if (rawVal > dry)
+        rawVal = dry;
+    if (rawVal < wet)
+        rawVal = wet;
+
+    // Linear mapping
+    int percent = (dry - rawVal) * 100 / (dry - wet);
+    return percent;
 }
 
 void parseThresholdCommand(const String &command)
@@ -111,18 +126,11 @@ void parseThresholdCommand(const String &command)
 
     String sensor = rest.substring(0, firstSpace);
     float minVal = rest.substring(firstSpace + 1, secondSpace).toFloat();
-    float maxVal = rest.substring(secondSpace + 1).toFloat();
 
-    if (sensor == "temp_C")
+    if (sensor == "moisture")
     {
-        temp_thresh_min = minVal;
-        temp_thresh_max = maxVal;
-        Serial.println("Temp threshold limits updated");
-    }
-    else if (sensor == "moisture")
-    {
+        minVal = constrain(minVal, 0, 100);
         moist_thresh_min = (int)minVal;
-        moist_thresh_max = (int)maxVal;
         Serial.println("Moisture threshold limits updated");
     }
 }
@@ -151,6 +159,8 @@ void parseWarningCommand(const String &command)
     }
     else if (sensor == "moisture")
     {
+        minVal = constrain(minVal, 0, 100);
+        maxVal = constrain(maxVal, 0, 100);
         moist_warn_min = (int)minVal;
         moist_warn_max = (int)maxVal;
         Serial.println("Moisture warning limits updated");
