@@ -6,6 +6,7 @@
 #define PIN_TMP36 A0
 #define PIN_MOIST A2
 #define servoPin 9
+#define LED_WARN 3
 #define closed_pos 0 // Work out needed positions
 #define open_pos 40
 #define watering_time 1000 // ms
@@ -28,6 +29,8 @@ void setup()
 {
     Serial.begin(9600);
     myServo.attach(servoPin);
+    pinMode(LED_WARN, OUTPUT);
+    digitalWrite(LED_WARN, LOW); // Start with LED off
     myServo.write(closed_pos);
     analogReference(EXTERNAL); // Use external 3.3V reference on AREF
     delay(1000);               // Let everything settle
@@ -37,14 +40,14 @@ void loop()
 {
     handleSerialInput(); // Respond to PC commands
 
-    int rawMoisture = analogRead(PIN_MOIST);
+    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
     int Moisture = convertMoistureToPercent(rawMoisture);
 
     float rawTemp = tmp_conv(analogRead(PIN_TMP36));
 
     checkThresholdAndWater(Moisture, rawTemp);
     sendSensorData(Moisture, rawTemp);
-
+    updateWarningLED();
     delay(50);
 }
 
@@ -175,4 +178,21 @@ void water()
     delay(watering_time);
     myServo.write(closed_pos);
     Serial.println("Closed");
+}
+
+void updateWarningLED()
+{
+    // If warning active, activate pin 3 for LED
+    if ((temp_warn_min != -999 && temp_warn_max != 999 &&
+        (tmp_conv(analogRead(PIN_TMP36)) < temp_warn_min || tmp_conv(analogRead(PIN_TMP36)) > temp_warn_max)) ||
+        (moist_warn_min != -1 && moist_warn_max != 1024 &&
+        (convertMoistureToPercent(analogRead(PIN_MOIST) * (ADC_VREF / 5)) < moist_warn_min ||
+        convertMoistureToPercent(analogRead(PIN_MOIST) * (ADC_VREF / 5)) > moist_warn_max)))
+    {
+        digitalWrite(LED_WARN, HIGH);
+    }
+    else
+    {
+        digitalWrite(LED_WARN, LOW);
+    }
 }
