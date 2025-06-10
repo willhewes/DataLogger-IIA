@@ -9,7 +9,7 @@
 #define LED_WARN 3
 #define closed_pos 0 // Work out needed positions
 #define open_pos 40
-#define watering_time 1000 // ms
+#define watering_time 2000 // ms
 
 unsigned long lastWateringTime = 0;
 unsigned long wateringCooldown = 10000; // 10 seconds cooldown in milliseconds
