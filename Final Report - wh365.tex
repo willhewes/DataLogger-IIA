@@ -147,107 +147,136 @@ and the GUI customised will allow for rapid expansion into the sector.
 \section{Summary}
 \label{sec:Summary}
 % Summary of overall design decisions and outline of project management (1 side, possible team material)
-\subsection{System Functionality}
-% Describe at a high level what the system does
+This section will detail
+an outline of the overall project and the decisions taken
+to ensure an effective development and deployment.
 
-The system was designed to provide a robust, 
-modular platform for automated plant watering, 
-combining real-time environmental monitoring with servo-based actuation. 
-At its core, the device reads soil moisture and temperature data, 
-transmits this information via serial 
-to a PC for logging and visualisation, 
-and actuates a servo controlled pinch valve,
-forming a water delivery mechanism.
-This can be triggered manually when desired,
-or in response to threshold values as typical operation. 
-The system architecture was shaped by a clear division of responsibilities 
-between microcontroller firmware and PC-based control logic, 
-allowing for both immediate functionality and long-term extensibility.
+\subsection{System Functionality}
+\label{sec:System_Functionality}
+
+The system developed in this project provides a robust 
+and modular platform for automated plant care, 
+centred around real-time environmental monitoring and active water delivery. 
+It measures soil moisture and ambient temperature via analogue sensors 
+connected to a microcontroller, and transmits this information via 
+serial connection to a PC for logging and visualisation. 
+In response to the measured conditions, 
+or through direct user intervention, the system can 
+actuate a servo-driven pinch valve that delivers 
+a controlled quantity of water from an attached reservoir.
+
+Operation can be either automatic -
+based on configurable moisture thresholds -
+or manual, with the user issuing commands through a graphical user interface (GUI). 
+Sensor data is plotted in real-time and stored in a CSV file,
+which will be automatically cleaned after use. 
+The complete feedback loop between sensing, user interaction, 
+and actuation allows for precise, low-effort maintenance of plant health.
+
+The system was designed to remain extensible beyond its initial demonstration, 
+with both the software and hardware structured to accommodate 
+additional environmental sensors, remote communication protocols, 
+and more sophisticated control schemes.
 
 \subsection{Project Management}
-% Team roles, GitHub, modular workflow, timeline
 \label{sec:PM}
 
+The project was developed collaboratively in a two-person team, 
+with both members working on the system holistically,
+applying changes to each module incrementally
+as the product was slowly developed.
+This approach was taken as opposed to a divided approach,
+wherein each member would manage either software or firmware,
+with the intention of giving each of us a better understanding 
+and overview of the system as a whole,
+allowing both of us to effectively contribute ideas 
+concerning the whole project collaboratively. 
+This had the consequence that on occasion we would 
+both be making changes to the same module simultaneously.
+
+By nature of this development style,
+there was an increased risk of conflicts introduced to the system
+if we did not take proper care to ensure that our changes were compatable.
+As a result, version control and clear communication 
+became a vital aspect of our project management.
+
+Version control and collaborative development were managed using GitHub, 
+enabling parallel work on the codebase
+and simplifying the process of merging changes and tracking development history. 
+This also allowed modular elements - 
+such as the GUI framework and firmware routines -
+to be developed and tested in isolation before being brought together.
+
+The project followed a phased development structure:
+\begin{enumerate}[nosep]
+    \item \textbf{Component Validation:} 
+    Initial sessions focused on validating the individual sensors 
+    and actuators through breadboard testing, 
+    ensuring reliable signal acquisition and control.
+    \item \textbf{Prototype Development:} 
+    In parallel with circuit construction, a socket-based simulation 
+    of the Arduino-PC interface was created to support 
+    early development of the GUI and data parsing routines 
+    in the absence of hardware.
+    \item \textbf{System Integration and Testing:} 
+    Once physical components were functional, development transitioned 
+    to serial communication over USB. 
+    Modules were progressively integrated and tested together 
+    in a final working system.
+\end{enumerate}
+
+Throughout the project, care was taken to adopt a modular workflow, 
+with each subcomponent independently tested and versioned. 
+This reduced the risk of cascading failures during integration and 
+supported incremental development even in the face of hardware delays 
+or debugging setbacks.
+
 \subsection{System Architecture}
-% Arduino vs PC responsibilities, comms design, modularity, extensibility
+\label{sec:System_Architecture}
+
+The system architecture was designed around a clear separation 
+of responsibilities between the microcontroller and the host PC, 
+with a serial communication link serving as the bridge. 
+This enabled a modular division of tasks, simplified debugging, 
+and ensured that each side of the system could be developed and tested independently.
+
+On the Arduino side, responsibilities included real-time sampling of sensor data, 
+basic calibration and averaging of analogue values, 
+formatting of output strings for serial transmission, 
+and all control logic relating to the servo actuation. 
+The microcontroller also responded to incoming configuration commands from the PC, 
+such as updating moisture thresholds or toggling the warning indicator.
+
+The PC software, written in Python, handled all higher-level data processing 
+and user interaction. 
+Upon receiving sensor data over the serial connection, 
+it parsed and logged the data to a CSV file 
+and plotted the live sensor readings in a responsive GUI. 
+This GUI also provided the user with control over watering modes 
+and threshold parameters, 
+which were sent back to the Arduino for immediate application.
+
+During early development, the communication protocol was prototyped 
+using a TCP socket-based simulation of the Arduino output. 
+This approach allowed the software framework to be built 
+and tested before the hardware was available. 
+Once the physical circuit was operational, 
+the system transitioned to serial-over-USB 
+communication without requiring significant changes to the data handling routines. 
+The decision to maintain a consistent communication format 
+across these stages proved highly effective and kept integration overhead minimal.
+
+The architecture was deliberately designed with extensibility in mind. 
+Additional sensors - digital or analogue — 
+can be easily integrated on either side of the interface, 
+with the firmware structured to accommodate future expansion. 
+Similarly, the current serial protocol could be replaced with 
+Bluetooth or Wi-Fi with minimal disruption to the existing software infrastructure, 
+enhancing portability and enabling 
+remote monitoring or control in future versions of the system.
 
 \subsection{Hardware Selection}
 % Sensors and actuators, with brief justification (no electrical detail)
-
-From the outset, the project was developed collaboratively using GitHub, 
-enabling effective version control and joint development across 
-hardware, firmware, and software components. 
-The project timeline was structured into three distinct phases: 
-initial breadboarding and validation of individual components; 
-development of communication infrastructure and 
-GUI in parallel with firmware design; 
-and full system integration and testing. 
-A strong emphasis was placed on modular development, 
-with sensors, control logic, and communication methods each validated 
-independently prior to integration.
-
-One early design choice was to simulate Arduino-PC communication 
-using a socket-based protocol. 
-This allowed rapid prototyping of the GUI and data parsing routines 
-while the hardware was still under construction. 
-This was essential in building the framework upon which the 
-rest of the system could stand, 
-including the setup of graphing capabilities,
-the \textit{Serial Plotter} class,
-and CSV handling capabilities.
-Once physical components were ready, 
-the system transitioned to serial USB communication, 
-with the data format unchanged,
-making for a straightforward development process.
-Similarly, this modularity would now enable rapid upgrades to 
-wireless communication protocols such as Bluetooth or Wi-Fi,
-expanding the appeal and versatility of the product.
-
-Responsibility for signal processing and decision-making was split 
-across the two platforms. 
-The Arduino handled low-level tasks, 
-including sampling and averaging sensor values, 
-applying basic calibration transformations, 
-and formatting the data for serial transmission. 
-It also listened for incoming commands to adjust the
-threshold moisture values and the warning levels, as well as
-being in control of all logic surrounding servo actuation,
-which in turn controlled the flow of water from the reservoir. 
-Meanwhile, the PC software performed higher-level tasks such as 
-parsing the incoming data stream, logging time-stamped values to CSV files, 
-and providing a user interface for threshold management and manual control.
-Both systems were designed such that ...
-
-Sensor and actuator selection was driven by 
-practical constraints on budget, 
-compatibility, and relevance to plant health. 
-A capacitive soil moisture sensor was chosen for its long-term reliability 
-compared to resistive alternatives,
-as well as its fast response time and reliable signal acquisition. 
-
-The temperature sensor (TMP36) provided a straightforward interface 
-with adequate resolution and stability 
-for environmental monitoring,
-though some care had to be taken to ensure fluctuations and noise
-did not interfere with its sensor data.
-For this reason it also had a 100pF capacitor attached
-between its signal and ground pins,
-and the signal processing was eventually decided upon
-primarily such that it would appropriately smooth out the 
-sensors reported values 
-while still allowing it to remain sufficiently responsive. 
-
-The servo 
-
-The servo-controlled water delivery mechanism was based on 
-an open-source 3D-printed pinch valve, 
-which offered simplicity and eliminated 
-the need for complex pumping hardware. 
-
-Additional sensors for light and humidity were ordered, 
-but did not arrive in time for integration into the final build. 
-Nonetheless, the system architecture remains extensible, 
-with analogue and digital I/O capacity reserved for future expansion.
 
 \begin{table}[H]
     \centering
