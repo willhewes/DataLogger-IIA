@@ -117,12 +117,12 @@ This allows for effective monitoring and care with minimal user intervention.
 
 In addition to moisture sensing, the system also tracks temperature, 
 and was supposed to track humidity and light -
-though this could not be implemented due to component delays.
+though this could not be implemented due to component delivery delays.
 This means most of the key factors affecting plant health
 can be closely tracked, enabling detailed analysis of
 optimum conditions for plant health.
-These additional features enhance the system's utility
-for control and research.
+These additional features enhance the system's utility for targeted care for the plants,
+or for more sophisticated control and research.
 
 The motivation behind creating this autonomous watering system was twofold. 
 Firstly, it can be used as demonstrated on a small scale,
@@ -140,49 +140,106 @@ On a larger scale, the system provides a modular,
 low-cost framework adaptable to industrial or agricultural applications, 
 where automated irrigation and environmental monitoring are increasingly valuable.
 The low cost and simple design of the system will be appealing 
-to large scale, versatile integration,
+to widespread, versatile integration,
 and the ease with which components can be added
-and the GUI customised will allow for rapid expansion into the sector.
+and the GUI can be customised will allow for rapid expansion into various sectors.
 
 \section{System Summary}
 \label{sec:summary}
 
-The system developed in this project provides a robust 
-and modular platform for automated plant care, 
-centred around real-time environmental monitoring and water delivery. 
-It measures soil moisture and ambient temperature via analogue sensors 
-connected to a microcontroller, and transmits this information via 
-serial connection to a PC for logging and visualisation. 
-In response to the measured conditions, 
-or through direct user intervention, the system can 
-actuate a servo-driven pinch valve that delivers 
-a controlled quantity of water from an attached reservoir.
+The final system comprises a microcontroller
+connected via USB serial to a Python-based PC interface. 
+The microcontroller collects real-time data from a capacitive soil moisture sensor 
+and a TMP36 temperature sensor, formats the data, 
+and transmits it at regular, rapid intervals. 
+The PC software receives the data, displays it graphically, 
+and writes it to a timestamped CSV log.
 
-Operation can be either automatic -
-based on configurable moisture thresholds -
-or manual, with the user issuing commands through a graphical user interface (GUI). 
-Sensor data is plotted in real-time and stored in a CSV file,
-which will be automatically cleaned after use. 
-The complete feedback loop between sensing, user interaction, 
-and actuation allows for precise, low-effort maintenance of plant health.
+The watering mechanism is controlled by a mini servo motor 
+which actuates a 3D-printed pinch valve connected to a reservoir. 
+Watering can be triggered manually from the graphical user interface, 
+or automatically when the measured soil moisture drops below 
+a configurable threshold. 
+This enables a complete closed-loop feedback system 
+between environmental sensing, control logic, 
+and physical actuation.
 
-The system is designed for domestic or small-scale use, 
-particularly by individuals seeking a low-maintenance way to 
-ensure plant health during travel or hot weather. 
-However, the modular nature of the hardware and software makes it easily extensible. 
-Additional sensors, wireless communication modules, 
-or remote control features could be integrated with minimal disruption, 
-paving the way for deployment in larger-scale agricultural or research settings.
+The GUI also provides users with real-time feedback, 
+warning indicators for out-of-range values, 
+and basic controls for adjusting system thresholds and modes. 
+Operation is intended to be simple, low-maintenance, 
+and suitable for unattended deployment over extended periods.
+
+While targeted toward small-scale domestic use, 
+the system's modular design allows for straightforward expansion. 
+Additional sensors (e.g., humidity, light), 
+alternative actuators, or wireless communication modules 
+can be added with minimal reconfiguration, 
+making the platform a flexible basis for 
+larger agricultural or environmental monitoring systems.
 
 \section{Project Management}
 \label{sec:project_management}
 
+The project was developed collaboratively in a two-person team, 
+with both members working on the system holistically,
+applying changes to each module incrementally
+as the product was slowly developed.
+This approach was taken as opposed to a divided approach,
+wherein each member would manage either software or firmware,
+with the intention of giving each of us a better understanding 
+and overview of the system as a whole,
+allowing us to effectively contribute ideas 
+concerning the whole project collaboratively. 
+This had the consequence that on occasion we would 
+both be making changes to the same module simultaneously.
+
+By nature of this development style,
+there was an increased risk of conflicts introduced to the system
+if we did not take proper care to ensure that our changes were compatable.
+As a result, version control and clear communication 
+became a vital aspect of our project management.
+
+Version control and collaborative development were managed using GitHub, 
+enabling parallel work on the codebase
+and simplifying the process of merging changes and tracking development history. 
+This also allowed modular elements - 
+such as the GUI framework and firmware routines -
+to be developed and tested in isolation before being brought together.
+
+The project followed a phased development structure:
+\begin{enumerate}[nosep]
+    \item \textbf{Component Validation:} 
+    Initial sessions focused on ordering the individual sensors 
+    and actuators then evaluating them through breadboard testing, 
+    ensuring reliable signal acquisition and control.
+    \item \textbf{Prototype Development:} 
+    In parallel with circuit construction, a socket-based simulation 
+    of the Arduino-PC interface was created to support 
+    early development of the GUI and data parsing routines 
+    in the absence of hardware.
+    \item \textbf{System Integration and Testing:} 
+    Once physical components were functional, development transitioned 
+    to serial communication over USB. 
+    Modules were progressively integrated and tested together 
+    in a final working system.
+\end{enumerate}
+
+Throughout the project, care was taken to adopt a modular workflow, 
+with each subcomponent independently tested and versioned. 
+This reduced the risk of cascading failures during integration and 
+supported incremental development even in the face of hardware delays 
+or debugging setbacks.
+
 \section{System Architecture}
 \label{sec:architecture}
+
 \subsection{Block Diagram}
 \label{sec:block_diagram}
+
 \subsection{Circuit Design}
 \label{sec:circuit_design}
+
 \subsection{Watering Mechanism}
 \label{sec:water_system}
 
