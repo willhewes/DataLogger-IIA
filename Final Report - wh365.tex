@@ -17,7 +17,7 @@
 \usepackage{lmodern} % For a professional-looking font (main body font)
 \usepackage{titlesec} % For title customization
 \usepackage{array} % For custom table formatting
-\usepackage[colorlinks=true, linkcolor=black, urlcolor=black]{hyperref} % Colored links without boxes
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref} % Colored links without boxes
 \usepackage{cleveref} % For improved cross-referencing    
 \usepackage{multirow}
 \usepackage{enumitem}
@@ -236,6 +236,88 @@ or debugging setbacks.
 
 \subsection{Block Diagram}
 \label{sec:block_diagram}
+
+Figure \ref{fig:Block_Diagram_for_the_automatic_watering_system} below presents a high-level overview 
+of the system architecture, outlining the key components and their interactions. 
+At the centre is the Arduino Uno microcontroller, responsible for interfacing with 
+the sensors and controlling the servo-driven watering mechanism. 
+It collects analogue data from the soil moisture and temperature sensors, 
+processes it internally, and transmits formatted readings 
+to the host PC via a serial USB connection.
+
+The PC software receives this data stream and handles real-time visualisation
+and CSV logging.
+The user can configure system parameters through a graphical user interface, 
+which sends commands back to the Arduino to adjust moisture thresholds, 
+trigger watering, or enable warning indicators.
+
+The servo receives control signals from the Arduino and actuates a 3D-printed pinch valve 
+attached to a water reservoir, allowing precise water delivery to the plant. 
+While only moisture and temperature sensors were fully integrated, 
+additional sensor channels were reserved on the PCB layout for light and humidity, 
+ensuring system extensibility for future work.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Datalogger Block Diagram - final.png}
+    \caption{Block Diagram for the automatic watering system}
+    \label{fig:Block_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
+\subsection{Component Orders}
+\label{sec:Components}
+The physical system was built around a small set of carefully chosen components, 
+ordered through Farnell. 
+The sensors included a capacitive soil moisture sensor, 
+chosen due to its improved output stability and longevity compared to a resistive module,
+and a TMP36 temperature sensor for simple analogue interfacing, 
+which required a 100pF capacitor acting in parallel between its output pin and the ground
+in order to stabilise its readings, 
+as well as the incorporation of an AREF wire.
+
+A mini servo motor was selected to control the water delivery mechanism, 
+providing reliable actuation of a 3D-printed pinch valve.
+This likewise had a capacitor placed between its power and ground pins 
+to limit current spikes and provide a smoother, controlled motion.
+
+Additional sensors for humidity and light intensity were also ordered, 
+but were not included in the final system due to shipping delays. 
+Nonetheless, space was reserved within the system design 
+for their future integration.
+
+These components are shown in Table \ref{tab:component_order} below,
+with the unused sensors highlighted in yellow.
+With a budget of £15, there was a remaining £3.65 
+that could be used for integration of more sensors,
+or replacing current sensors with a higher quality alternative.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5} 
+    \makebox[\linewidth][c]{
+    \resizebox{0.8\textwidth}{!}{
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Order Code} & \textbf{Description of Component} & \textbf{Unit Price (£)} \\
+        \hline
+        2946124 & Capacitive Soil Moisture Sensor Module & 4.69 \\
+        \hline
+        SC21096 & Mini servo & 2.94 \\
+        \hline
+        4030054 & Temperature sensor & 1.38 \\
+        \hline
+        \rowcolor{yellow!60} 3167525 & Light sensor & 1.43 \\
+        \hline
+        \rowcolor{yellow!60} SN36746 & Humidity sensor & 0.91 \\
+        \hline
+        \multicolumn{2}{|c|}{\textbf{\large Total}} & \textbf{\large 11.35} \\
+        \hline
+    \end{tabular}
+    }   
+    }
+    \caption{Component Order Summary}
+    \label{tab:component_order}
+\end{table}
 
 \subsection{Circuit Design}
 \label{sec:circuit_design}
