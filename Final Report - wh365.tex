@@ -322,6 +322,27 @@ or replacing current sensors with a higher quality alternative.
 \subsection{Circuit Design}
 \label{sec:circuit_design}
 
+The final circuit design consisted of a single Arduino Uno board interfacing 
+with two analogue sensors and a mini servo motor. The sensors were connected 
+to analogue input pins, with the soil moisture sensor wired directly and the 
+TMP36 temperature sensor routed through a \SI{100}{\pico\farad} capacitor 
+between its signal and ground pins to suppress high-frequency noise,
+improving stability of the output signal. 
+The Arduino's \texttt{AREF} pin was set to an external \SI{3.3}{\volt} reference 
+to improve ADC resolution and match the expected sensor output range.
+The servo motor required a \SI{100}{\micro\farad} decoupling capacitor added between 
+its power and ground pins to limit voltage dips during actuation.
+
+The complete analogue circuit layout is shown in 
+Figure~\ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Analogue Circuit Diagram - final.png}
+    \caption{Analogue Circuit Diagram for the automatic watering system}
+    \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
 \subsection{Watering Mechanism}
 \label{sec:water_system}
 
