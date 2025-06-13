@@ -108,8 +108,69 @@
 \section{Introduction}
 \label{sec:introduction}
 
+The aim of this project was to develop a microcontroller-based 
+automatic plant watering system.
+The system can autonomously monitor soil moisture levels, 
+plot the data over time, and provide options to water the plant
+manually when required or in response to threshold moisture levels.
+This allows for effective monitoring and care with minimal user intervention.
+
+In addition to moisture sensing, the system also tracks temperature, 
+and was supposed to track humidity and light -
+though this could not be implemented due to component delays.
+This means most of the key factors affecting plant health
+can be closely tracked, enabling detailed analysis of
+optimum conditions for plant health.
+These additional features enhance the system's utility
+for control and research.
+
+The motivation behind creating this autonomous watering system was twofold. 
+Firstly, it can be used as demonstrated on a small scale,
+allowing direct control over the conditions of one 
+or a small number of houseplants,
+offering a convenient way to care for plants.
+This will remove the majority of the care required
+to look after these often frail plants,
+which is particularly useful over holidays or 
+during the hot Summer months.
+As a university student with several well-loved plants,
+this has immediate personal appeal.
+
+On a larger scale, the system provides a modular, 
+low-cost framework adaptable to industrial or agricultural applications, 
+where automated irrigation and environmental monitoring are increasingly valuable.
+The low cost and simple design of the system will be appealing 
+to large scale, versatile integration,
+and the ease with which components can be added
+and the GUI customised will allow for rapid expansion into the sector.
+
 \section{System Summary}
 \label{sec:summary}
+
+The system developed in this project is a modular, 
+autonomous plant watering platform that integrates environmental sensing, 
+control logic, and a PC-based user interface. 
+At its core, the system collects data from soil moisture and temperature sensors, 
+processes it via a microcontroller, and communicates the results to a host computer. 
+The computer visualises and logs the data, while also providing manual 
+or automated control of a servo-driven watering mechanism.
+
+The system operates in two distinct modes. 
+In automatic mode, watering is triggered when the soil moisture level drops 
+below a user-defined threshold. 
+In manual mode, the user can initiate watering directly from the graphical user interface (GUI). 
+In both cases, the volume of water delivered is controlled 
+by a mini servo actuating a 3D-printed pinch valve connected to a reservoir. 
+Sensor readings are transmitted to the PC over a serial connection, 
+where they are plotted in real time and stored in a CSV file for later analysis.
+
+The system is designed for domestic or small-scale use, 
+particularly by individuals seeking a low-maintenance way to 
+ensure plant health during travel or hot weather. 
+However, the modular nature of the hardware and software makes it easily extensible. 
+Additional sensors, wireless communication modules, 
+or remote control features could be integrated with minimal disruption, 
+paving the way for deployment in larger-scale agricultural or research settings.
 
 \section{Project Management}
 \label{sec:project_management}
