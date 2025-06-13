@@ -346,6 +346,32 @@ Figure~\ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}.
 \subsection{Watering Mechanism}
 \label{sec:water_system}
 
+The water delivery system was implemented using the mini servo motor to actuate a 
+3D-printed pinch valve \cite{pinch_valve_design}. 
+This design was selected due to its ease of implementation, compact size, 
+and small number of parts,
+reducing the risk of any mechanical faults within the system. 
+The open-source valve design was scaled up 
+to fit the PVC tubing we had on hand to connect.
+
+The servo applies a clamping force to compress the tubing, restricting flow when closed 
+and releasing it when opened. This mechanism provided a reliable and cost-effective 
+alternative to traditional solenoid valves or pump systems, which tend to require 
+greater current draw and more complex power handling.
+
+A moisture threshold, configured via the PC interface, controlled automatic actuation. 
+When the measured moisture dropped below this value stored on the Arduino, 
+the servo was triggered to open the valve for a set duration, 
+delivering a fixed amount of water. 
+Manual triggering was also available through the GUI.
+\iffalse
+Although the current implementation assumes a fixed water level in the reservoir, 
+the design allows for future integration of a float switch or liquid level sensor 
+to prevent dry actuation and ensure continued reliability in unattended use. 
+\fi
+The actuation logic, timing, and safety handling are further detailed in 
+Section~\ref{subsec:main_loop}.
+
 \section{Initial Development}
 \label{sec:initial_development}
 \subsection{Sensor Prototyping}
