@@ -189,7 +189,7 @@ and suitable for unattended deployment over extended periods.
 
 While targeted toward small-scale domestic use, 
 the system's modular design allows for straightforward expansion. 
-Additional sensors (e.g., humidity, light), 
+Additional sensors (e.g., humidity, light, air quality), 
 alternative actuators, or wireless communication modules 
 can be added with minimal reconfiguration, 
 making the platform a flexible basis for 
@@ -202,8 +202,8 @@ The project was developed collaboratively in a two-person team,
 with both members working on the system holistically,
 applying changes to each module incrementally
 as the product was slowly developed.
-This approach was taken as opposed to a divided approach,
-wherein each member would manage either software or firmware,
+This approach was taken as opposed to a divided approach -
+wherein each member would manage either software or firmware -
 with the intention of giving each of us a better understanding 
 and overview of the system as a whole,
 allowing us to effectively contribute ideas 
@@ -274,13 +274,9 @@ and CSV logging.
 The user can configure system parameters through a graphical user interface, 
 which sends commands back to the Arduino to adjust moisture thresholds, 
 trigger watering, or enable warning indicators.
-
 The servo receives control signals from the Arduino and 
 actuates a 3D-printed pinch valve attached to a water reservoir, 
 allowing precise water delivery to the plant. 
-While only moisture and temperature sensors were fully integrated, 
-additional sensor channels were reserved on the PCB layout for light and humidity, 
-ensuring system extensibility for future work.
 
 \subsection{Component Orders}
 \label{sec:Components}
@@ -291,7 +287,7 @@ chosen due to its improved output stability and longevity compared to a resistiv
 and a TMP36 temperature sensor for simple analogue interfacing, 
 which required a 100pF capacitor acting in parallel between its output pin and the ground
 in order to stabilise its readings, 
-as well as the incorporation of an AREF wire.
+as well as the incorporation of an \texttt{AREF} wire.
 
 A mini servo motor was selected to control the water delivery mechanism, 
 providing reliable actuation of a 3D-printed pinch valve.
@@ -378,7 +374,7 @@ working exclusively through the Arduino for now.
 This would set a functional output that could then be integrated into other features
 and processed as required.
 After some small difficulties in setting up these sensors,
-detailed in Section \ref{sec:technical_problems},
+detailed in Section \ref{sec:technical_challenges},
 we were able to get all the components functioning as required.
 
 \subsection{GUI}
@@ -406,7 +402,7 @@ Figures \ref{fig:prelim_GUI_readings} and \ref{fig:prelim_GUI_plot} in the Appen
 
 This section will explore the final implementation of the design.
 The general structure of the code will be explained, 
-and where possible code excerpts will be displayed and ...,
+and where possible code excerpts will be displayed,
 but due to page constraints some code excepts will be pasted in the Appendix.
 
 \subsection{Firmware}
@@ -616,15 +612,15 @@ These are intended to provide a clear demonstration of how the code functions.
 The Python application was structured into five modules, 
 each with a clearly defined role to maximise modularity and ease of debugging.
 
-The \texttt{main.py} script serves as the entry point to the program. 
+The \textit{main.py} script serves as the entry point to the program. 
 It is responsible for launching the GUI and initiating communication setup, 
 such as selecting a COM port for serial communication. 
 It also handles the initial window configuration and orchestrates the interaction 
 between user inputs and back-end logic. 
 While relatively short, this file acts as the coordinator that binds the system together.
 
-The user interface is fully defined within \texttt{gui.py}. 
-This file constructs the GUI using \texttt{PyQt6}, 
+The user interface is fully defined within \textit{gui.py}. 
+This file constructs the GUI using \textit{PyQt6}, 
 and handles layout, live plotting, user input fields, and interaction feedback. 
 It manages real-time updates of graphs using embedded Matplotlib canvases 
 and dynamically responds to incoming data from the Arduino. 
@@ -652,7 +648,7 @@ except serial.SerialException as e:
     raise RuntimeError(f"Failed to connect to {self.port}: {e}")
 \end{lstlisting}
 
-The \texttt{utils.py} module contains reusable utility functions 
+The \textit{utils.py} module contains reusable utility functions 
 shared across other files. 
 These include timestamp generation, averaging and smoothing of incoming data, 
 formatting sensor readings, and validation of input ranges to prevent erroneous data entry. 
@@ -663,7 +659,7 @@ before being imported and applied in specific cases in other modules.
 One such example of this is shown in Program \ref{prog:deque} below,
 allowing for the plot to dynamically update its bounds.
 This simplifies modifying the more complex modules,
-such as gui.py.
+such as \textit{gui.py}.
 
 \begin{lstlisting}[style=python-style, 
 caption={Update Plot function}, label={prog:deque}]
@@ -682,7 +678,7 @@ def update_plot(ax1, ax2, canvas, line1, line2, timestamps, moist_vals, temp_val
     canvas.draw()
 \end{lstlisting}
 
-Finally, \texttt{themes.py} provides consistent colour schemes and styling for the GUI. 
+Finally, \textit{themes.py} provides consistent colour schemes and styling for the GUI. 
 It defines light and dark themes as CSS-style string templates 
 which are applied globally to all widgets, 
 ensuring visual consistency and giving users a more polished experience.
@@ -694,9 +690,9 @@ or expanded upon without significant rework.
 \subsubsection{User Interface}
 \label{subsec:software_ui}
 
-The graphical user interface, defined in \texttt{gui.py}, 
+The graphical user interface, defined in \textit{gui.py}, 
 provides users with live feedback and control over the watering system. 
-Built using \texttt{PyQt6}, it includes:
+Built using \textit{PyQt6}, it includes:
 
 \begin{itemize}[nosep]
     \item Real-time plots for temperature and soil moisture using Matplotlib widgets.
@@ -810,7 +806,7 @@ On the software side, graphical layout problems emerged during GUI development.
 Overlapping elements in the PySide6 interface reduced clarity and accessibility, 
 particularly as new widgets were added. 
 This was eventually resolved by introducing stylesheet-based layout tuning 
-through a dedicated \texttt{themes.py} module, 
+through a dedicated \textit{themes.py} module, 
 which allowed for visual consistency and 
 responsive resizing across different sections of the interface.
 
@@ -879,6 +875,7 @@ Due to the modular design process,
 these change could be implemented relatively easily and 
 gradually rolled out.
 
+\newpage
 \begin{thebibliography}{9}
 
 \bibitem{arduino_servo}
