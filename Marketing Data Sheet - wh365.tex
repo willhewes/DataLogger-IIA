@@ -1,0 +1,138 @@
+\documentclass[a4paper,11pt]{article}
+% Use ctrl + alt + V to view live pdf
+
+% Packages
+\usepackage[utf8]{inputenc} % For encoding
+\usepackage[T1]{fontenc} % Better handling of accented characters and hyphenation
+\usepackage{microtype} % Improves spacing and justification
+\usepackage{amsmath, amssymb} % For equations and symbols
+\usepackage{graphicx} % For including graphics/images
+\usepackage{caption} % For customizing figure and table captions
+\usepackage{subcaption} % For subfigures and subcaptions
+\usepackage{float} % For fixing figure and table positions
+\usepackage{booktabs} % For professional-looking tables
+\usepackage{siunitx} % For consistent typesetting of units and numbers
+\usepackage[margin=2cm]{geometry} % Adjusts page margins
+\usepackage{fancyhdr} % For custom headers and footers
+\usepackage{lmodern} % For a professional-looking font (main body font)
+\usepackage{titlesec} % For title customization
+\usepackage{array} % For custom table formatting
+\usepackage[colorlinks=true, linkcolor=black, citecolor=blue, urlcolor=blue]{hyperref} % Colored links without boxes
+\usepackage{cleveref} % For improved cross-referencing    
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{tabularx}
+\usepackage{changepage}
+\usepackage{tikz}
+\usepackage{pdfpages}
+\usepackage[table]{xcolor}
+\usepackage{tocloft}
+\usepackage{multicol}
+\renewcommand{\lstlistingname}{Program}
+
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textit{Smart Plant Watering System}}
+\fancyhead[R]{\textit{Will Hewes | wh365@cam.ac.uk}}                        
+\setlength{\headheight}{28pt}                         
+
+\begin{document}
+\begin{center}
+    {\Huge \textbf{Smart Plant Watering System}}\\[0.5em]
+    \textbf{Marketing Data Sheet}
+\end{center}
+\vspace{-1.5em}
+
+\titleformat{\section}[block]{\Large\bfseries\filcenter}{}{1em}{}
+\titleformat{\subsection}[block]{\large\bfseries\filcenter}{}{1em}{}
+
+\section*{Overview}
+This smart plant watering system offers a cost-effective, 
+modular solution for automating plant care. 
+Designed around an Arduino Uno and a Python GUI, 
+the system autonomously monitors soil moisture and temperature and 
+triggers watering via a 3D-printed pinch valve. 
+It supports manual or automatic control, visual and sound based warnings, 
+and real-time data logging, making it suitable for 
+hobbyists, students, or small-scale growers. 
+The simple hardware and open-source software architecture ensure easy setup, 
+low maintenance, and future expandability.
+
+\vspace{1em}
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{Images/Setup.jpg}
+\end{center}
+
+\vspace{1em}
+
+\section*{Key Features}
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Cross-Platform GUI:} 
+    Python-based PyQt6 interface compatible with Windows, macOS, and Linux.
+    \item \textbf{Real-Time Data Plotting:} 
+    Live visualisation of soil moisture and temperature using Matplotlib.
+    \item \textbf{Robust Serial Communication:} 
+    Reliable USB link using PySerial with timeout safeguards.
+    \item \textbf{Expandable Hardware:} 
+    PCB layout includes reserved ports for light and humidity sensors.
+    \item \textbf{Custom 3D-Printed Valve:} 
+    Servo-actuated pinch valve designed to fit standard PVC tubing.
+    \item \textbf{Safe Actuation Logic:} 
+    Cooldown timer prevents repeated watering, protecting both plant and hardware.
+    \item \textbf{Modular Codebase:} 
+    Fully structured software and firmware for 
+    straightforward extension and debugging.
+\end{itemize}
+
+\section*{Why Choose This System?}
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Affordable:} 
+    Total cost of under £12. Components sourced from Farnell with budget margin remaining.
+    \item \textbf{Educational Value:} 
+    Demonstrates core embedded systems concepts—sensor interfacing, 
+    control logic, serial comms, and GUI design.
+    \item \textbf{Unattended Operation:} Designed for extended use with 
+    minimal maintenance, ideal for holidays or forgetful owners.
+    \item \textbf{User-Friendly:} Easy threshold adjustment and 
+    one-click manual watering via intuitive GUI.
+\end{itemize}
+
+\vspace{1em}
+
+\begin{center}
+    \includegraphics[width=0.9\textwidth]{Images/3 - Threshold Setting.png}
+\end{center}
+
+\vspace{1em}
+
+\section*{Specifications}
+
+\begin{center}
+\begin{tabularx}{0.85\textwidth}{@{} >{\raggedright\arraybackslash}p{4cm} X @{}}
+\textbf{Microcontroller} & Arduino Uno R3 \\
+\textbf{Power Supply} & 5V USB or power bank \\
+\textbf{Soil Sensor} & Capacitive moisture sensor \\
+\textbf{Temperature Sensor} & TMP36 + 100 pF capacitor \\
+\textbf{Valve} & Servo-powered 3D-printed pinch valve \\
+\textbf{GUI} & Python + PyQt6 + Matplotlib \\
+\textbf{OS Support} & Windows, macOS, Linux \\
+\textbf{Logging} & CSV log (temporary or extendable) \\
+\textbf{Optional} & Warning LED, sound alert via QSoundEffect \\
+\end{tabularx}
+\end{center}
+
+\section*{Contact \& Collaboration}
+For educational use, licensing inquiries, or industrial integration:\\
+
+\noindent
+\textbf{Will Hewes} \\
+\texttt{wh365@cam.ac.uk} \\
+\textit{University of Cambridge, Department of Engineering}
+
+\end{document}
