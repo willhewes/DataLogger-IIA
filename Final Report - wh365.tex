@@ -428,10 +428,11 @@ header files to be created.
 The setup for the Arduino involved defining the pin configurations
 as shown already in 
 Figure \ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system},
-including defining the servo pin and setting the analogue reference to \SI{3.3} \volt.
-This was incorporated to help stabilise the sensor readings.
-as well as setting several variable values for use in the 
-warning, threshold, and watering function calls.
+including defining the servo pin and 
+setting the analogue reference to \SI{3.3}{\volt}, 
+chosen to match the sensor voltage range and improve ADC precision, 
+as well as initialising system-wide threshold and 
+warning parameters used throughout the firmware.
 
 The \textit{void setup} function is shown below in 
 Program \ref{prog:void_setup}. 
@@ -531,10 +532,9 @@ int convertMoistureToPercent(int rawVal)
 \end{lstlisting}
 
 This is one example of how the sensor readings were handled.
-In another section of the code, the sensor readings,
-warning levels and threshold for moisture content
-was also constrained to legal levels, ensuring 
-no nonsensical values could disturb the system.
+To prevent errant values from corrupting downstream logic, 
+\textit{constrain()} was used to clip all threshold and 
+warning values to their defined operational bounds.
 
 Program \ref{prog:comms} shown below demonstrates the serial communications
 received by the Arduino from the PC.
@@ -543,6 +543,10 @@ The serial interface allows the PC to issue control commands such as
 \texttt{STEP\_SERVO}, \texttt{SET\_THRESH <value>}, and 
 \texttt{SET\_WARN <sensor> <min> <max>}, which are parsed and acted upon 
 in real-time.
+These string-based commands form a lightweight text-based protocol between 
+the PC and Arduino, transmitted via 
+serial over USB using the \textit{pyserial} library 
+on the host computer. 
 
 \begin{lstlisting}[style=cpp-style, 
 caption={Communication with the PC}, label={prog:comms}]
@@ -584,11 +588,56 @@ the implementation logic for this feature.
 \subsection{Software}
 \label{sec:software}
 
+This section will outline the software component of our product.
+It will detail the module structure,
+including how functions are seperated to improve modularity and debugging,
+their functionality,
+and where necessary short excerpts of their code to demonstrate how this was acheived.
+
+Several screenshots from the GUI during the typical operation
+of the Automatic Watering System are displayed in the Appendix.
+These are intended to provide a clear demonstration of how the code functions.
+
 \subsubsection{Module Structure}
 \label{subsec:software_modules}
 
+The Python application was structured into five modules, each with a clearly defined role:
+
+\begin{itemize}
+    \item \texttt{main.py} --- Acts as the program entry point, 
+    responsible for launching the GUI and linking the interface with back-end logic.
+    \item \texttt{gui.py} --- Defines the full graphical user interface using \texttt{PyQt6}. 
+    It includes all layout configuration, control widgets, and data plotting components.
+    \item \texttt{serial\_handler.py} --- Manages the serial communication with the Arduino. 
+    It includes connection setup, line parsing, and thread-safe reading.
+    \item \texttt{utils.py} --- Contains shared utility functions for formatting timestamps, 
+    logging CSV data, applying signal filtering, and validating inputs.
+    \item \texttt{themes.py} --- Provides configurable colour themes for the GUI 
+    (light and dark modes) to enhance usability and visibility.
+\end{itemize}
+
+This modular architecture allowed for independent development and 
+debugging of each component and enabled clean extensibility.
+
 \subsubsection{User Interface}
 \label{subsec:software_ui}
+
+The graphical user interface, defined in \texttt{gui.py}, 
+provides users with live feedback and control over the watering system. 
+Built using \texttt{PyQt6}, it includes:
+
+\begin{itemize}
+    \item Real-time plots for temperature and soil moisture using Matplotlib widgets.
+    \item Controls for setting threshold and warning levels for both sensors.
+    \item Buttons to manually trigger watering and to reset parameters.
+    \item Visual indicators (e.g., colour-coded fields, warning messages) 
+    to highlight sensor readings outside configured bounds.
+\end{itemize}
+
+The GUI is updated asynchronously as new data arrives from the Arduino, 
+with sensor data appended to deques and smoothed before plotting. 
+A modular layout was used to group related controls logically and 
+enable straightforward additions of further sensors or settings in future iterations.
 
 \section{Technical Challenges}
 \label{sec:technical_problems}
@@ -664,6 +713,36 @@ void updateWarningLED()
     }
 }
 \end{lstlisting}
+
+\section{Software}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{1 - Select Comm Port.png}
+    \caption{GUI displaying automatic Com port selection}
+    \label{fig:port}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{2 - Blank Chart.png}
+    \caption{The basic GUI}
+    \label{fig:blank_gui}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{3 - Threshold Setting.png}
+    \caption{GUI displaying plotted data - including threshold and warnings}
+    \label{fig:plotted}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{4 - Warning.png}
+    \caption{GUI displaying warning block}
+    \label{fig:warning_block}
+\end{figure}
 
 \section{Interim Report}
 % \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
