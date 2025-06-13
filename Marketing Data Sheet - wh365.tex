@@ -40,7 +40,7 @@
 \fancyhf{}
 \fancyhead[L]{\textit{Smart Plant Watering System}}
 \fancyhead[R]{\textit{Will Hewes | wh365@cam.ac.uk}}                        
-\setlength{\headheight}{28pt}                         
+\setlength{\headheight}{10pt}                         
 
 \begin{document}
 \begin{center}
@@ -73,32 +73,28 @@ low maintenance, and future expandability.
 
 \section*{Key Features}
 \begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Cross-Platform GUI:} 
-    Python-based PyQt6 interface compatible with Windows, macOS, and Linux.
     \item \textbf{Real-Time Data Plotting:} 
-    Live visualisation of soil moisture and temperature using Matplotlib.
+    Live visualisation of soil moisture and temperature.
     \item \textbf{Robust Serial Communication:} 
     Reliable USB link using PySerial with timeout safeguards.
     \item \textbf{Expandable Hardware:} 
-    PCB layout includes reserved ports for light and humidity sensors.
+    PCB layout includes reserved ports for additional sensors.
     \item \textbf{Custom 3D-Printed Valve:} 
     Servo-actuated pinch valve designed to fit standard PVC tubing.
     \item \textbf{Safe Actuation Logic:} 
-    Cooldown timer prevents repeated watering, protecting both plant and hardware.
-    \item \textbf{Modular Codebase:} 
-    Fully structured software and firmware for 
-    straightforward extension and debugging.
+    Safety measures put into place to prevent software faults.
+    \item \textbf{Easy Threshold Setting:}
+    The system has been designed to make it as easy as possible 
+    to set threshold moisture values and environment warning levels,
+    guaranteeing the health and safety of your plants.
 \end{itemize}
 
 \section*{Why Choose This System?}
 \begin{itemize}[leftmargin=1.5em]
     \item \textbf{Affordable:} 
-    Total cost of under £12. Components sourced from Farnell with budget margin remaining.
-    \item \textbf{Educational Value:} 
-    Demonstrates core embedded systems concepts—sensor interfacing, 
-    control logic, serial comms, and GUI design.
+    Total cost of under £12, with cheap expandability available.
     \item \textbf{Unattended Operation:} Designed for extended use with 
-    minimal maintenance, ideal for holidays or forgetful owners.
+    minimal maintenance, ideal for holidays.
     \item \textbf{User-Friendly:} Easy threshold adjustment and 
     one-click manual watering via intuitive GUI.
 \end{itemize}
@@ -109,23 +105,39 @@ low maintenance, and future expandability.
     \includegraphics[width=0.9\textwidth]{Images/3 - Threshold Setting.png}
 \end{center}
 
-\vspace{1em}
-
 \section*{Specifications}
+\vspace{-01em}
+\begin{table}[H]
+    \centering
+    \begin{tabularx}{0.8\textwidth}{>{\bfseries}l X}
+        Microcontroller & Arduino Uno R3 \\
+        Power Supply & 5V USB or power bank \\
+        Soil Sensor & Capacitive moisture sensor \\
+        Temperature Sensor & TMP36 + 100 pF capacitor \\
+        Valve & Servo-powered 3D-printed pinch valve \\
+        Warning Features & Flashing LED, sound alert  \\
+    \end{tabularx}
+    \label{tab:system_overview}
+\end{table}
 
-\begin{center}
-\begin{tabularx}{0.85\textwidth}{@{} >{\raggedright\arraybackslash}p{4cm} X @{}}
-\textbf{Microcontroller} & Arduino Uno R3 \\
-\textbf{Power Supply} & 5V USB or power bank \\
-\textbf{Soil Sensor} & Capacitive moisture sensor \\
-\textbf{Temperature Sensor} & TMP36 + 100 pF capacitor \\
-\textbf{Valve} & Servo-powered 3D-printed pinch valve \\
-\textbf{GUI} & Python + PyQt6 + Matplotlib \\
-\textbf{OS Support} & Windows, macOS, Linux \\
-\textbf{Logging} & CSV log (temporary or extendable) \\
-\textbf{Optional} & Warning LED, sound alert via QSoundEffect \\
-\end{tabularx}
-\end{center}
+\section*{Future Improvements}
+We are excited to announce there will be more features implemented 
+on future systems!
+
+\begin{itemize}[leftmargin=1.5em, nosep]
+    \item \textbf{Sensor Expansion:} 
+    Humidity and light sensors 
+    to provide a more complete environmental profile.
+    \item \textbf{Wireless Connectivity:} Bluetooth and Wi-Fi modules for 
+    remote monitoring and notifications.
+    \item \textbf{Logging:} Extend data logging capabilities 
+    for tracking environmental trends over time.
+    \item \textbf{Improved GUI Features:} Support multiple tabs and chart types, 
+    and enable exporting of plotted data directly from the interface.
+    \item \textbf{Water Supply Safeguards:} 
+    Add a float switch to monitor the reservoir and prevent dry actuation.
+\end{itemize}
+
 
 \section*{Contact \& Collaboration}
 For educational use, licensing inquiries, or industrial integration:\\
