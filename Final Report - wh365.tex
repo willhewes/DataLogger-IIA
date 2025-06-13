@@ -147,22 +147,24 @@ and the GUI customised will allow for rapid expansion into the sector.
 \section{System Summary}
 \label{sec:summary}
 
-The system developed in this project is a modular, 
-autonomous plant watering platform that integrates environmental sensing, 
-control logic, and a PC-based user interface. 
-At its core, the system collects data from soil moisture and temperature sensors, 
-processes it via a microcontroller, and communicates the results to a host computer. 
-The computer visualises and logs the data, while also providing manual 
-or automated control of a servo-driven watering mechanism.
+The system developed in this project provides a robust 
+and modular platform for automated plant care, 
+centred around real-time environmental monitoring and water delivery. 
+It measures soil moisture and ambient temperature via analogue sensors 
+connected to a microcontroller, and transmits this information via 
+serial connection to a PC for logging and visualisation. 
+In response to the measured conditions, 
+or through direct user intervention, the system can 
+actuate a servo-driven pinch valve that delivers 
+a controlled quantity of water from an attached reservoir.
 
-The system operates in two distinct modes. 
-In automatic mode, watering is triggered when the soil moisture level drops 
-below a user-defined threshold. 
-In manual mode, the user can initiate watering directly from the graphical user interface (GUI). 
-In both cases, the volume of water delivered is controlled 
-by a mini servo actuating a 3D-printed pinch valve connected to a reservoir. 
-Sensor readings are transmitted to the PC over a serial connection, 
-where they are plotted in real time and stored in a CSV file for later analysis.
+Operation can be either automatic -
+based on configurable moisture thresholds -
+or manual, with the user issuing commands through a graphical user interface (GUI). 
+Sensor data is plotted in real-time and stored in a CSV file,
+which will be automatically cleaned after use. 
+The complete feedback loop between sensing, user interaction, 
+and actuation allows for precise, low-effort maintenance of plant health.
 
 The system is designed for domestic or small-scale use, 
 particularly by individuals seeking a low-maintenance way to 
