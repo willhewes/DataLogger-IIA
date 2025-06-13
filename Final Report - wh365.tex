@@ -29,6 +29,13 @@
 \usepackage{tikz}
 \usepackage{pdfpages}
 \usepackage[table]{xcolor}
+\usepackage{tocloft}
+
+% Reduce spacing between entries
+\setlength{\cftbeforesecskip}{1em}
+\setlength{\cftbeforesubsecskip}{1em} 
+\setlength{\cftbeforesubsubsecskip}{1em}
+
 \usetikzlibrary{shapes.geometric, arrows}
 % --- C++ Style ---
 \lstdefinestyle{cpp-style}{
@@ -98,9 +105,8 @@
 \renewcommand{\maketitle}{
     \begin{center}
         \LARGE \textbf{ENGINEERING TRIPOS PART IIA} \\[0.5em]
-        \Large \textbf{SF4 - DataLogger} \\[0.5em]
-        \textbf{Final Report} \\[1.5em]
-        \vspace{-1em}
+        \Large \textbf{SF4 - DataLogger} \\
+        \textbf{Final Report} \\
         \small Will Hewes - wh365 \\ 
         Pembroke College \\ 
         \vspace{0.5em}
@@ -109,7 +115,7 @@
 
 \begin{document}
 \pagenumbering{gobble}
-% \includepdf[pages=-]{Handouts/IIA_Project_Coversheet Final Report.pdf}
+\includepdf[pages=-]{Handouts/IIA_Project_Coversheet Final Report.pdf}
 \maketitle
 \hrule
 \tableofcontents
@@ -202,9 +208,9 @@ with the intention of giving each of us a better understanding
 and overview of the system as a whole,
 allowing us to effectively contribute ideas 
 concerning the whole project collaboratively. 
+
 This had the consequence that on occasion we would 
 both be making changes to the same module simultaneously.
-
 By nature of this development style,
 there was an increased risk of conflicts introduced to the system
 if we did not take proper care to ensure that our changes were compatable.
@@ -256,24 +262,25 @@ It collects analogue data from the soil moisture and temperature sensors,
 processes it internally, and transmits formatted readings 
 to the host PC via a serial USB connection.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Datalogger Block Diagram - final.png}
+    \caption{Block Diagram for the automatic watering system}
+    \label{fig:Block_Diagram_for_the_automatic_watering_system}
+\end{figure}
+
 The PC software receives this data stream and handles real-time visualisation
 and CSV logging.
 The user can configure system parameters through a graphical user interface, 
 which sends commands back to the Arduino to adjust moisture thresholds, 
 trigger watering, or enable warning indicators.
 
-The servo receives control signals from the Arduino and actuates a 3D-printed pinch valve 
-attached to a water reservoir, allowing precise water delivery to the plant. 
+The servo receives control signals from the Arduino and 
+actuates a 3D-printed pinch valve attached to a water reservoir, 
+allowing precise water delivery to the plant. 
 While only moisture and temperature sensors were fully integrated, 
 additional sensor channels were reserved on the PCB layout for light and humidity, 
 ensuring system extensibility for future work.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{Datalogger Block Diagram - final.png}
-    \caption{Block Diagram for the automatic watering system}
-    \label{fig:Block_Diagram_for_the_automatic_watering_system}
-\end{figure}
 
 \subsection{Component Orders}
 \label{sec:Components}
@@ -321,7 +328,7 @@ Figure~\ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{Analogue Circuit Diagram - final.png}
+    \includegraphics[width=0.6\textwidth]{Analogue Circuit Diagram - final.png}
     \caption{Analogue Circuit Diagram for the automatic watering system}
     \label{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system}
 \end{figure}
@@ -349,11 +356,7 @@ When the measured moisture dropped below this value stored on the Arduino,
 the servo was triggered to open the valve for a set duration, 
 delivering a fixed amount of water. 
 Manual triggering was also available through the GUI.
-\iffalse
-Although the current implementation assumes a fixed water level in the reservoir, 
-the design allows for future integration of a float switch or liquid level sensor 
-to prevent dry actuation and ensure continued reliability in unattended use. 
-\fi
+
 The actuation logic, timing, and safety handling are further detailed in 
 Section~\ref{sec:firmware}. 
 
@@ -391,6 +394,9 @@ fixed width graph plotting, and threshold adjustment widgets.
 This early GUI prototype, developed in Tkinter, would serve as the structural 
 foundation of the final interface, providing an object-oriented architecture 
 onto which features could be added modularly as development progressed.
+In later versions, we would switch over to PySide6,
+building from a similar framework but allowing 
+more customisation and responsiveness.
 
 The GUI for this preliminary design can be seen in 
 Figures \ref{fig:prelim_GUI_readings} and \ref{fig:prelim_GUI_plot} in the Appendix.
@@ -425,16 +431,14 @@ and opens serial communications at the standard 9600 Baud.
 
 \begin{lstlisting}[style=cpp-style, 
     caption={\textit{void setup} function}, label={prog:void_setup}]
-void setup()
-{
+void setup(){
     Serial.begin(9600);
     myServo.attach(servoPin);
     pinMode(LED_WARN, OUTPUT);
     digitalWrite(LED_WARN, LOW); // Start with LED off
     myServo.write(closed_pos);
     analogReference(EXTERNAL); // Use external 3.3V reference on AREF
-    delay(1000);               // Let everything settle
-}
+    delay(1000); }               // Let everything settle
 \end{lstlisting}
 
 The loop function then performs as follows: 
@@ -453,8 +457,7 @@ Program \ref{prog:loop} shown below displays the full loop function.
 
 \begin{lstlisting}[style=cpp-style, 
     caption={Main \textit{loop} function}, label={prog:loop}]
-void loop()
-{
+void loop(){
     handleSerialInput(); // Respond to PC commands
 
     int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
@@ -465,8 +468,7 @@ void loop()
     checkThresholdAndWater(Moisture, rawTemp);
     updateWarningLED();
     sendSensorData(Moisture, rawTemp);
-    delay(50);
-}
+    delay(50); }
 \end{lstlisting}
 
 The loop includes a short delay of 50\,ms between iterations to balance 
@@ -514,6 +516,29 @@ int convertMoistureToPercent(int rawVal)
     return (int)percent; }
 \end{lstlisting}
 
+A basic calibration test was performed by measuring the sensor output 
+in different moisture conditions. 
+The raw ADC values recorded are summarised in 
+Table \ref{tab:sensor_calibration}, 
+and form the basis for the hardcoded thresholds in the firmware.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Condition} & \textbf{Raw ADC Reading} \\
+        \hline
+        Air (dry) & 520 \\
+        \hline
+        Damp soil & 400 - 450 \\
+        \hline
+        Submerged in water & 250 \\
+        \hline
+    \end{tabular}
+    \caption{Sensor calibration readings for soil moisture}
+    \label{tab:sensor_calibration}
+\end{table}
+
 This is one example of how the sensor readings were handled.
 To prevent errant values from corrupting downstream logic, 
 \textit{constrain()} was used to clip all threshold and 
@@ -541,9 +566,14 @@ else if (command.startsWith("SET_WARN "))
 {parseWarningCommand(command);}
 \end{lstlisting}
 
+The \textit{parseWarningCommand} function is also displayed in 
+Program \ref{prog:warn} in the Appendix for completeness,
+displaying how these functions interact with one another 
+throughout the firmware.
+
 Automatic watering is triggered if the current moisture value drops below 
 the set threshold. A cooldown timer (\SI{10}{\second}) implemented on the Arduino - 
-thorugh the use of the \textit{millis()} function -
+through the use of the \textit{millis()} function -
 ensures that watering cannot occur too frequently. 
 The servo is actuated to open the 
 pinch valve for a fixed duration (\SI{2}{\second}), then automatically closed. 
@@ -701,10 +731,10 @@ A custom collapsible widget class, \texttt{CollapsibleGroupBox},
 was defined to create clean, space-efficient groupings for the many control panels 
 within the side panel.
 The \texttt{CollapsibleGroupBox} class is shown below for completeness 
-in Program \ref{}
+in Program \ref{prog:CGB_class}.
 
 \begin{lstlisting}[style=python-style, 
-caption={Update Plot function}, label={prog:deque}]
+caption={CollapsibleGroupBox class}, label={prog:CGB_class}]
 class CollapsibleGroupBox(QGroupBox):
     def __init__(self, title="", parent=None):
         super().__init__(title, parent)
@@ -841,9 +871,42 @@ Printables. \textit{Pinch Valve Powered by Servo} : \\
 \subsection{Firmware}
 
 \begin{lstlisting}[style=cpp-style, 
+caption={\textit{parseWarningCommand} function, 
+emblematic of similar functions in \texttt{main.ino}}, label={prog:warn}]
+void parseWarningCommand(const String &command){
+    if (!command.startsWith("SET_WARN "))
+        return;
+
+    String rest = command.substring(9); // Remove "SET_WARN "
+    int firstSpace = rest.indexOf(' ');
+    int secondSpace = rest.indexOf(' ', firstSpace + 1);
+
+    if (firstSpace == -1 || secondSpace == -1)
+        return;
+
+    String sensor = rest.substring(0, firstSpace);
+    float minVal = rest.substring(firstSpace + 1, secondSpace).toFloat();
+    float maxVal = rest.substring(secondSpace + 1).toFloat();
+
+    if (sensor == "temp_C")
+    {
+        temp_warn_min = minVal;
+        temp_warn_max = maxVal;
+        Serial.println("Temp warning limits updated");
+    }
+    else if (sensor == "moisture")
+    {
+        minVal = constrain(minVal, 0, 100);
+        maxVal = constrain(maxVal, 0, 100);
+        moist_warn_min = (int)minVal;
+        moist_warn_max = (int)maxVal;
+        Serial.println("Moisture warning limits updated");
+    }}
+\end{lstlisting}
+
+\begin{lstlisting}[style=cpp-style, 
 caption={LED warning light}, label={prog:LED}]
-void updateWarningLED()
-{
+void updateWarningLED(){
     // If warning active, activate pin 3 for LED
     if ((temp_warn_min != -999 && temp_warn_max != 999 &&
         (tmp_conv(analogRead(PIN_TMP36)) < temp_warn_min || tmp_conv(analogRead(PIN_TMP36)) > temp_warn_max)) ||
@@ -856,11 +919,10 @@ void updateWarningLED()
     else
     {
         digitalWrite(LED_WARN, LOW);
-    }
-}
+    }}
 \end{lstlisting}
 
-\section{Software}
+\section{GUI}
 
 \begin{figure}[H]
     \centering
@@ -891,7 +953,7 @@ void updateWarningLED()
 \end{figure}
 
 \section{Interim Report}
-% \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
+\includepdf[pages=3-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
 % Featuring the Interim Report
 
 \end{document}
