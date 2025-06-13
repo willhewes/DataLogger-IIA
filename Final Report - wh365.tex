@@ -282,15 +282,15 @@ allowing precise water delivery to the plant.
 \label{sec:Components}
 The physical system was built around a small set of carefully chosen components, 
 ordered through Farnell. 
-The sensors included a capacitive soil moisture sensor, 
+The sensors included a capacitive soil moisture sensor \cite{dfrobot}, 
 chosen due to its improved output stability and longevity compared to a resistive module,
-and a TMP36 temperature sensor for simple analogue interfacing, 
+and a TMP36 temperature sensor for simple analogue interfacing \cite{tmp36} \cite{arduino_tmp36}, 
 which required a 100pF capacitor acting in parallel between its output pin and the ground
 in order to stabilise its readings, 
 as well as the incorporation of an \texttt{AREF} wire.
 
-A mini servo motor was selected to control the water delivery mechanism, 
-providing reliable actuation of a 3D-printed pinch valve.
+A mini servo motor \cite{arduino_servo} was selected to control the water delivery mechanism, 
+providing reliable actuation of a 3D-printed pinch valve \cite{pinch_valve_design}.
 This likewise had a capacitor placed between its power and ground pins 
 to limit current spikes and provide a smoother, controlled motion.
 
@@ -878,9 +878,9 @@ gradually rolled out.
 \newpage
 \begin{thebibliography}{9}
 
-\bibitem{arduino_servo}
-Arduino. \textit{Servo Motor Basics with Arduino} : \\
-\url{https://docs.arduino.cc/learn/electronics/servo-motors/}
+    \bibitem{dfrobot}
+DFRobot. \textit{Capacitive Soil Moisture Sensor SKU SEN0193} : \\
+\url{https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193}
 
 \bibitem{tmp36}
 Analog Devices. \textit{TMP35/TMP36/TMP37 Data Sheet} : \\
@@ -890,9 +890,9 @@ Analog Devices. \textit{TMP35/TMP36/TMP37 Data Sheet} : \\
 ArduinoGetStarted. \textit{Arduino - TMP36 Temperature Sensor} : \\
 \url{https://arduinogetstarted.com/tutorials/arduino-tmp36-temperature-sensor}
 
-\bibitem{dfrobot}
-DFRobot. \textit{Capacitive Soil Moisture Sensor SKU SEN0193} : \\
-\url{https://wiki.dfrobot.com/Capacitive_Soil_Moisture_Sensor_SKU_SEN0193}
+\bibitem{arduino_servo}
+Arduino. \textit{Servo Motor Basics with Arduino} : \\
+\url{https://docs.arduino.cc/learn/electronics/servo-motors/}
 
 \bibitem{pinch_valve_design}
 Printables. \textit{Pinch Valve Powered by Servo} : \\
