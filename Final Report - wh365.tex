@@ -779,13 +779,105 @@ allowing further features or sensors to be added with minimal architectural chan
 \section{Technical Challenges}
 \label{sec:technical_challenges}
 
-Throughout the course of the project, there were several small technical challenges
+Throughout the course of the project, there were several small 
+but notable technical challenges, 
+particularly during the initial development and integration phases. 
+One of the earliest issues arose with the temperature sensor, 
+which displayed erratic and noisy readings. 
+This was initially traced to the omission of an external analogue reference wire -
+a required connection that had not been included in the circuit.
+Once corrected, signal stability improved considerably. 
+This was further enhanced by placing a \SI{100}{\pico\farad} ceramic capacitor 
+between the TMP36 sensor's output and ground, 
+which effectively filtered high-frequency noise and smoothed the ADC readings.
+
+A similar problem occurred during early hardware prototyping due to an oversight: 
+the power supply rails were assumed to run continuously along the board's length, 
+when in fact they are split across the centre gap. 
+This led to wildly inconsistent readings from both sensors,
+as the analogue sensor read functions were receiving a floating voltage.
+
+In the firmware, a delay-based approach was initially used 
+to manage timing between sensor reads and servo actuation. 
+However, this blocked the main loop and rendered the system unresponsive 
+during watering cycles. 
+This could be exarcebated by repeatedly pressing the manual watering option,
+which could completely freeze operation for upwards of 20 seconds.
+This was later replaced with a non-blocking \texttt{millis()}-based cooldown implementation, 
+which preserved system reactivity while maintaining timing integrity.
+
+On the software side, graphical layout problems emerged during GUI development. 
+Overlapping elements in the PySide6 interface reduced clarity and accessibility, 
+particularly as new widgets were added. 
+This was eventually resolved by introducing stylesheet-based layout tuning 
+through a dedicated \texttt{themes.py} module, 
+which allowed for visual consistency and 
+responsive resizing across different sections of the interface.
 
 \section{Further Improvements}
 \label{sec:further_improvements}
 
+While the current implementation delivers a functional prototype, 
+there are several areas that could be refined or expanded in future iterations.
+
+Firstly, the unused light and humidity sensors could be integrated, 
+providing a more comprehensive environmental dataset. 
+This would allow for improved decision-making regarding plant health and watering needs. 
+The GUI could also be expanded to include a wider variety of chart options, 
+with separate tabs or toggles for different sensor plots, improving clarity and usability.
+
+Data logging could be extended beyond the temporary CSV file, 
+with an option to enable continuous or session-based saving. 
+This would support long-term monitoring and trend analysis, 
+especially when paired with multi-sensor plotting for cross-comparison of conditions.
+
+The physical water delivery setup was somewhat improvised; 
+using soft silicone tubing in place of the current PVC would reduce the risk of 
+permanent deformation and improve reliability of the pinch valve closure. 
+The addition of a float switch or level sensor would further enhance
+utility in an industrial application,
+ensuring that none of the potentially thousands of individual watering systems
+would run out of water, 
+or alternatively if one water supply is used it will track the rate at which
+water is used.
+
+On the communication side, a key improvement would incorporate 
+wireless connectivity via WiFi or Bluetooth, 
+allowing for remote access, automatic alerts, and mobile app integration. 
+This would substantially increase user convenience and system versatility, 
+particularly for applications beyond a single-room setup.
+This feature, as well as the development of a desktop app,
+would eliminate the need for the user to interact with Python at all,
+further increasing the ease of use.
+
 \section{Conclusion}
 \label{sec:conclusion}
+
+The project successfully achieved its original aim: to design, implement, 
+and test an automatic plant watering system based on sensor feedback and 
+microcontroller actuation. The final system was capable of real-time 
+monitoring, threshold-based decision-making, and controlled water delivery, 
+all presented through a clear and responsive graphical interface.
+
+Key milestones were reached, including the reliable interfacing of 
+soil moisture and temperature sensors, clean serial communication with 
+a PC, and the integration of warning features to support 
+long-term usability. The modular hardware design and extensible software 
+architecture leave ample room for future enhancements, and the final 
+prototype proved effective and stable under repeated testing.
+
+Beyond technical achievement, this project also offered insight into 
+practical design iteration, hardware-software co-development, and 
+user-focused interface design. Working through early-stage debugging 
+and GUI challenges highlighted the value of modular design and 
+clear communication.
+
+In future work, this system could be scaled for use in more demanding 
+agricultural or research contexts, incorporating additional sensors, 
+wireless communication, and intelligent scheduling.
+Due to the modular design process,
+these change could be implemented relatively easily and 
+gradually rolled out.
 
 \begin{thebibliography}{9}
 
@@ -868,7 +960,6 @@ Printables. \textit{Pinch Valve Powered by Servo} : \\
 \end{figure}
 
 \section{Code}
-\subsection{Firmware}
 
 \begin{lstlisting}[style=cpp-style, 
 caption={\textit{parseWarningCommand} function, 
