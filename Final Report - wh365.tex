@@ -34,9 +34,10 @@
 \lstdefinestyle{cpp-style}{
     language=C++,
     basicstyle=\ttfamily\footnotesize,
-    keywordstyle=\color{blue}\bfseries,
+    keywordstyle=\color{red}\bfseries,
     stringstyle=\color{orange},
-    commentstyle=\color{gray}\itshape,
+    commentstyle=\color{green!70!black}\itshape,
+    identifierstyle=\color{blue},
     numbers=left,
     numberstyle=\tiny\color{gray},
     numbersep=10pt,
@@ -63,7 +64,7 @@
     showstringspaces=false,
     captionpos=b
 }
-\renewcommand{\lstlistingname}{Code}
+\renewcommand{\lstlistingname}{Program}
 % Custom settings
 \pagestyle{fancy}
 \fancyhf{}
@@ -413,16 +414,179 @@ Figures \ref{fig:prelim_GUI_readings} and \ref{fig:prelim_GUI_plot} in the Appen
 
 \section{Final Implementation}
 \label{sec:final_implementation}
+
+This section will explore the final implementation of the design.
+The general structure of the code will be explained, 
+and where possible code excerpts will be displayed and ...,
+but due to page constraints some code excepts will be pasted in the Appendix.
+
 \subsection{Firmware}
 \label{sec:firmware}
-\subsubsection{Main Loop}
-\label{subsec:main_loop}
-\subsubsection{Signal Processing}
-\label{subsec:firmware_processing}
+
+The firmware was written in \textit{C++}, and did not require any supplementary 
+header files to be created.
+The setup for the Arduino involved defining the pin configurations
+as shown already in 
+Figure \ref{fig:Analogue_Circuit_Diagram_for_the_automatic_watering_system},
+including defining the servo pin and setting the analogue reference to \SI{3.3} \volt.
+This was incorporated to help stabilise the sensor readings.
+as well as setting several variable values for use in the 
+warning, threshold, and watering function calls.
+
+The \textit{void setup} function is shown below in 
+Program \ref{prog:void_setup}. 
+This just attaches the warning LED,
+as well as the servo, which has been set back to zero position,
+and opens serial communications at the standard 9600 Baud.
+
+\begin{lstlisting}[style=cpp-style, 
+    caption={\textit{void setup} function}, label={prog:void_setup}]
+void setup()
+{
+    Serial.begin(9600);
+    myServo.attach(servoPin);
+    pinMode(LED_WARN, OUTPUT);
+    digitalWrite(LED_WARN, LOW); // Start with LED off
+    myServo.write(closed_pos);
+    analogReference(EXTERNAL); // Use external 3.3V reference on AREF
+    delay(1000);               // Let everything settle
+}
+\end{lstlisting}
+
+The loop function then performs as follows: 
+
+\begin{enumerate}[label=\Roman*., nosep]
+    \item Check for and parse incoming serial commands from the PC.
+    \item Sample the temperature and moisture sensors via analogue inputs.
+    \item Apply signal processing and scaling to convert 
+    readings into physical units.
+    \item Evaluate whether automatic watering is required based on the configured threshold.
+    \item Update the warning LED based on current sensor values and set limits.
+    \item Transmit the processed data back to the PC for logging and display.
+\end{enumerate}
+
+Program \ref{prog:loop} shown below displays the full loop function.
+
+\begin{lstlisting}[style=cpp-style, 
+    caption={Main \textit{loop} function}, label={prog:loop}]
+void loop()
+{
+    handleSerialInput(); // Respond to PC commands
+
+    int rawMoisture = analogRead(PIN_MOIST) * (ADC_VREF / 5);
+    int Moisture = convertMoistureToPercent(rawMoisture);
+
+    float rawTemp = tmp_conv(analogRead(PIN_TMP36));
+
+    checkThresholdAndWater(Moisture, rawTemp);
+    updateWarningLED();
+    sendSensorData(Moisture, rawTemp);
+    delay(50);
+}
+\end{lstlisting}
+
+The loop includes a short delay of 50\,ms between iterations to balance 
+responsiveness and stability, while still achieving a high sampling rate 
+for smooth real-time plotting.
+This frequency of sending sensor data was partially chosen due to 
+the way in which sensor readings are interpreted by the PC.
+Specifically, the GUI computes and displays averaged values from a rolling 
+batch of readings sent by the Arduino.
+
+This method was chosen for its effective smoothing capabilities,
+reducing the signal variation to below 
+perceptible levels for the moisture sensor, 
+and constrained temperature reading variation to within 
+$\pm 0.2\,^\circ\mathrm{C}$, while still preserving rapid 
+response to sudden environmental changes.
+
+Alternative approaches for signal processing were also explored.
+Exponential smoothing was tested, but while effective at 
+suppressing spikes, it introduced lag that dulled response to 
+quick environmental shifts. 
+More complex techniques such as applying a Fast Fourier Transform 
+to identify and suppress high-frequency components were also considered. 
+The aim was to isolate and eliminate ambient electronic noise 
+or unstable power supply interference.
+However, these methods did not yield a meaningful 
+improvement in signal quality compared to the averaging approach,
+producing a less representative output during short-term monitoring. 
+As such, they were not adopted in the final implementation, 
+though they represent promising directions for future enhancement 
+of on-device filtering. 
+Program \ref{prog:moist} shown below demonstrates 
+the Arduino-side function used to convert raw moisture readings 
+into a percentage scale between 0\% (completely wet) and 100\% (completely dry).
+
+\begin{lstlisting}[style=cpp-style, 
+caption={Arduino moisture conversion}, label={prog:moist}]
+int convertMoistureToPercent(int rawVal)
+{   const int dry = 520;
+    const int wet = 250;
+
+    rawVal = constrain(rawVal, wet, dry);
+
+    float percent = (float)(dry - rawVal) * 100 / (dry - wet);
+    return (int)percent; }
+\end{lstlisting}
+
+This is one example of how the sensor readings were handled.
+In another section of the code, the sensor readings,
+warning levels and threshold for moisture content
+was also constrained to legal levels, ensuring 
+no nonsensical values could disturb the system.
+
+Program \ref{prog:comms} shown below demonstrates the serial communications
+received by the Arduino from the PC.
+
+The serial interface allows the PC to issue control commands such as 
+\texttt{STEP\_SERVO}, \texttt{SET\_THRESH <value>}, and 
+\texttt{SET\_WARN <sensor> <min> <max>}, which are parsed and acted upon 
+in real-time.
+
+\begin{lstlisting}[style=cpp-style, 
+caption={Communication with the PC}, label={prog:comms}]
+if (command == "STEP_SERVO")
+    {water();}
+else if (command.startsWith("SET_THRESH "))
+    {parseThresholdCommand(command);}
+else if (command.startsWith("SET_WARN "))
+{parseWarningCommand(command);}
+\end{lstlisting}
+
+Automatic watering is triggered if the current moisture value drops below 
+the set threshold. A cooldown timer (\SI{10}{\second}) implemented on the Arduino - 
+thorugh the use of the \textit{millis()} function -
+ensures that watering cannot occur too frequently. 
+The servo is actuated to open the 
+pinch valve for a fixed duration (\SI{2}{\second}), then automatically closed. 
+This action is logged back to the PC over serial.
+Due to this \SI{10}{\second} interval between watering events,
+the system is not at risk of opening the valve 
+and then overwatering the plant while it waits for water
+to seep through the soil enough to register on the moisture sensor - 
+there is plenty of time between watering for the highly responsive
+soil moisture sensor to perform its own threshold management.
+
+Finally, a warning LED was included to indicate when sensor readings 
+exceeded user-defined threshold limits. 
+As this remains a prototype, advanced features such as push notifications 
+or alerts via connected services were not implemented, 
+though these represent a natural extension. 
+The LED provides immediate local feedback when either temperature or moisture 
+levels fall outside their respective safe ranges. 
+This visual warning complements the GUI-based indicators and could be further enhanced 
+in future versions with the addition of a piezoelectric buzzer 
+or multicolour LED for clearer signalling. 
+Program \ref{prog:LED} shown in the Appendix demonstrates 
+the implementation logic for this feature.
+
 \subsection{Software}
 \label{sec:software}
+
 \subsubsection{Module Structure}
 \label{subsec:software_modules}
+
 \subsubsection{User Interface}
 \label{subsec:software_ui}
 
@@ -466,19 +630,40 @@ Printables. \textit{Pinch Valve Powered by Servo} : \\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\textwidth]{Dummy Readings.png}
+    \includegraphics[width=0.3\textwidth]{Dummy Readings.png}
     \caption{GUI displaying simulated sensor readings}
     \label{fig:prelim_GUI_readings}
 \end{figure}
 
-\iffalse
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Dummy Plotting.png}
     \caption{GUI displaying simulated plot of sensor readings}
     \label{fig:prelim_GUI_plot}
 \end{figure}
-\fi
+
+\section{Code}
+\subsection{Firmware}
+
+\begin{lstlisting}[style=cpp-style, 
+caption={LED warning light}, label={prog:LED}]
+void updateWarningLED()
+{
+    // If warning active, activate pin 3 for LED
+    if ((temp_warn_min != -999 && temp_warn_max != 999 &&
+        (tmp_conv(analogRead(PIN_TMP36)) < temp_warn_min || tmp_conv(analogRead(PIN_TMP36)) > temp_warn_max)) ||
+        (moist_warn_min != -1 && moist_warn_max != 1024 &&
+        (convertMoistureToPercent(analogRead(PIN_MOIST) * (ADC_VREF / 5)) < moist_warn_min ||
+        convertMoistureToPercent(analogRead(PIN_MOIST) * (ADC_VREF / 5)) > moist_warn_max)))
+    {
+        digitalWrite(LED_WARN, HIGH);
+    }
+    else
+    {
+        digitalWrite(LED_WARN, LOW);
+    }
+}
+\end{lstlisting}
 
 \section{Interim Report}
 % \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7
