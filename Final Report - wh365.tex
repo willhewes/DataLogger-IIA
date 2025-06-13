@@ -374,12 +374,42 @@ Section~\ref{subsec:main_loop}.
 
 \section{Initial Development}
 \label{sec:initial_development}
+
+This section will detail the initial milestone that we set out to achieve.
+The intention behind implementing these functionalities
+which would subsequently be removed in some cases
+was to help build a working baseline which incorporated the sensor readings,
+some form of communication, and a basic GUI from which we would build.
+
 \subsection{Sensor Prototyping}
 \label{sec:sensor_prototyping}
+
+Upon receiving the sensors and servo motor we had ordered,
+the first task would be to get a basic program and output from each of them individually,
+working exclusively through the Arduino for now.
+This would set a functional output that could then be integrated into other features
+and processed as required.
+
+After some small difficulties in setting up these sensors,
+detailed in Section \ref{sec:technical_problems},
+we were able to get all the components functioning as required.
+
 \subsection{GUI}
 \label{sec:gui_simulation}
-\subsection{Communication Protocol}
-\label{sec:comm_protocol}
+
+Before hardware testing was complete, a preliminary graphical user interface was created 
+to simulate the output of the final control system. 
+At this stage, the sensor values were simulated using a local socket stream, mimicking 
+the serial data that would later be sent by the Arduino. This enabled us to build and 
+refine key features such as real-time sensor measurements,
+fixed width graph plotting, and threshold adjustment widgets.
+
+This early GUI prototype, developed in Tkinter, would serve as the structural 
+foundation of the final interface, providing an object-oriented architecture 
+onto which features could be added modularly as development progressed.
+
+The GUI for this preliminary design can be seen in 
+Figures \ref{fig:prelim_GUI_readings} and \ref{fig:prelim_GUI_plot} in the Appendix.
 
 \section{Final Implementation}
 \label{sec:final_implementation}
@@ -405,9 +435,6 @@ Section~\ref{subsec:main_loop}.
 \section{Conclusion}
 \label{sec:conclusion}
 
-
-\newpage
-\appendix
 \begin{thebibliography}{9}
 
 \bibitem{arduino_servo}
@@ -431,6 +458,27 @@ Printables. \textit{Pinch Valve Powered by Servo} : \\
 \url{https://www.printables.com/model/247744-pinch-valve-powered-by-servo/files}
 
 \end{thebibliography}
+
+\newpage
+\appendix
+
+\section{Preliminary GUI}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{Dummy Readings.png}
+    \caption{GUI displaying simulated sensor readings}
+    \label{fig:prelim_GUI_readings}
+\end{figure}
+
+\iffalse
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Dummy Plotting.png}
+    \caption{GUI displaying simulated plot of sensor readings}
+    \label{fig:prelim_GUI_plot}
+\end{figure}
+\fi
 
 \section{Interim Report}
 % \includepdf[pages=-]{Reports/First Interim Report.pdf} % e.g. [pages={1,3-5,7}] to include pages 1,3,4,5,7

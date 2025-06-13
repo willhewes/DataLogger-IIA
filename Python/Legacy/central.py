@@ -8,11 +8,11 @@ if __name__ == "__main__":
 
     try:
         if logging == "1":
-            processes.append(subprocess.Popen(["python", "Python/sender.py"]))
-            processes.append(subprocess.Popen(["python", "Python/receiver.py"]))
+            processes.append(subprocess.Popen(["python", "Python/Legacy/sender.py"]))
+            processes.append(subprocess.Popen(["python", "Python/Legacy/receiver.py"]))
         elif logging == "2":
-            processes.append(subprocess.Popen(["python", "Python/sender.py"]))
-            processes.append(subprocess.Popen(["python", "Python/plot.py"]))
+            processes.append(subprocess.Popen(["python", "Python/Legacy/sender.py"]))
+            processes.append(subprocess.Popen(["python", "Python/Legacy/plot.py"]))
         else:
             print("No valid option selected.")
             sys.exit(0)
